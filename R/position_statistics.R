@@ -10,6 +10,7 @@
 #' @param w a vector of weights the same length as x
 #' @param measure the statistics to compute, 'mean', 'median', 'sd'
 #' @param na.rm whether to exclude `NA` values from the calculation
+#' @export
 position_statistic <- function(x, w, measure, na.rm = TRUE){
 
     if(length(x)==0 | all(is.na(x))){

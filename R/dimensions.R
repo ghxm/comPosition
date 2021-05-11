@@ -1,4 +1,5 @@
 
+#' @export
 get_pole <- function(dimension, pole){
     if (dimension %in% names(main_dimensions)){
         main_dimensions[[dimension]][[pole]]

@@ -137,6 +137,7 @@ CouncilVotingData <- function (country_id, date.var, method = "") {
 #'
 #' @param country_id vector of ParlGov country ids
 #' @param date a date in character format
+#' @export
 council_voting_weights <- function (country_id, date, type = "bi_normal") {
     # Calculate voting weight in the Council for a specific date
     #

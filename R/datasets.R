@@ -5,6 +5,7 @@
 #' @param type character string containing the type of dataset (source), e.g. 'parlgov_party'
 #' @param ... additional named attributes to be assigned to the dataset object
 #' @return A dataset S3 object containing x and additional attributes
+#' @export
 dataset <- function(x, type, ...){
 
     # @TODO set type
@@ -64,7 +65,7 @@ dataset <- function(x, type, ...){
 
 
 # MANIFESTO (CMP) ----
-
+#' @export
 manifesto_dataset <- function(base_url = 'https://manifesto-project.wzb.eu/down/data/2020b/datasets/MPDataset_MPDS2020b.csv'){
 
     raw <- download_manifesto(base_url)
@@ -74,6 +75,7 @@ manifesto_dataset <- function(base_url = 'https://manifesto-project.wzb.eu/down/
 
 }
 
+#' @export
 download_manifesto <- function(base_url = 'https://manifesto-project.wzb.eu/down/data/2020b/datasets/MPDataset_MPDS2020b.csv'){
 
     read.csv(base_url, as.is=TRUE)
@@ -84,6 +86,7 @@ download_manifesto <- function(base_url = 'https://manifesto-project.wzb.eu/down
 
 # PARLGOV ----
 
+#' @export
 parlgov_dataset <- function(base_url = 'http://www.parlgov.org/static/data/development-cp1252/', type){
 
     raw <- download_parlgov(base_url = base_url, type = type)
@@ -94,7 +97,7 @@ parlgov_dataset <- function(base_url = 'http://www.parlgov.org/static/data/devel
 }
 
 
-
+#' @export
 download_parlgov <- function(base_url = 'http://www.parlgov.org/static/data/development-cp1252/', type){
 
     read.csv(paste0(base_url, 'view_', type, '.csv'), as.is=TRUE)

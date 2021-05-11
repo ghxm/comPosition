@@ -7,6 +7,7 @@
 #' @param from the (data) source of the input IDs, e.g. 'parlgov' to convert ParlGov IDs into another ID format
 #' @param to the desired output data for the party IDs, e.g. 'manifesto' to obtain the CMP IDs
 #' @return A vector of matching IDs in the 'to' data
+#' @export
 convert_id <- function(id, date=NA, from, to, linktable = NULL){
 
     if (is.null(linktable)){
@@ -58,6 +59,7 @@ linktable <- function(){
 
 #' Create a lookup table from parlgov data
 #'
+#' @export
 parlgov_linktable <- function(data_url = 'https://partyfacts.herokuapp.com/download/external-parties-csv/'){
     # return dataframe with partyfacts_id data_id_a ...
 
@@ -73,6 +75,7 @@ parlgov_linktable <- function(data_url = 'https://partyfacts.herokuapp.com/downl
 
 #' Create a partyfacts lookup table
 #'
+#' @export
 partyfacts_linktable <- function(data_url = 'https://partyfacts.herokuapp.com/download/external-parties-csv/', ignore_years = FALSE){
     # return dataframe with partyfacts_id data_id_a ...
     pf_raw <- download_partyfacts(data_url)
@@ -108,6 +111,7 @@ partyfacts_linktable <- function(data_url = 'https://partyfacts.herokuapp.com/do
 #'
 #' @param url URL to download the dataset from
 #' @return A dataframe of the partyfacts dataset
+#' @export
 download_partyfacts <- function(data_url = 'https://partyfacts.herokuapp.com/download/external-parties-csv/'){
     read.csv(url(data_url), as.is=TRUE)
 }

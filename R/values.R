@@ -16,6 +16,7 @@ values <- function(x, ...) UseMethod('values')
 #' @param additional_vars additional variables from the values dataset to include in return
 #'
 #' @return a dataframe of the values for the values_vars from the target data for the given input
+#' @export
 values.default <- function(input, date = NULL, data, value_vars, tolerance_lower = 365*6, tolerance_upper = 365*2, id_var = attr(data, 'party_id_var'), date_var = attr(data, 'date_var'), return_id_var=FALSE, additional_vars=c()){
 
 
@@ -62,7 +63,7 @@ values.default <- function(input, date = NULL, data, value_vars, tolerance_lower
 
 }
 
-
+#' @export
 values.composition <- function(x, date=format(attr(x, 'date'), "%Y-%m-%d"), data, value_vars, tolerance_lower = 365*6, tolerance_upper = 365*2, id_var = attr(data, 'party_id_var'), date_var = attr(data, 'date_var'), return_id_var=FALSE, additional_vars=c()){
 
     # @TODO select appropriate id column based on data type
@@ -89,6 +90,7 @@ values.composition <- function(x, date=format(attr(x, 'date'), "%Y-%m-%d"), data
 #' @param date_var name of the date variable in the target data
 #'
 #' @return The closest matching date value in the target data for the given input date
+#' @export
 determine_match_date <- function(id, date, data, tolerance_lower=0, tolerance_upper=0, id_var, date_var){
 
     date <- lubridate::parse_date_time(date, orders=c('ymd', 'dmy'))

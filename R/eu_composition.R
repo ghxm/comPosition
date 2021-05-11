@@ -8,6 +8,7 @@
 #' @section TODO:
 #' - implement linktable country id handling (incl. varying id_vars for x and linktable?)
 #' - add option to subset to eu when only supplying party_id (link and then use parlgov to obtain country_id and call recursive?)
+#' @export
 subset_to_eu <- function(x, date = NA, country_id_var = attr(x, 'country_id_var'), country_id_linktable = NA){
 
     if (is.character(date)){
@@ -59,6 +60,7 @@ determine_ep_election_date <- function(date, election_dates){
 }
 
 #' Create an EP composition
+#' @export
 ep <- function(date, data = NA, linktable, type='plenary'){
 
     if (is.character(date)){
@@ -103,6 +105,7 @@ ep <- function(date, data = NA, linktable, type='plenary'){
 #' @param x a dataset for parties
 #'
 #' @return the input dataset x subset to contain only parties present in the council for a given date
+#' @export
 council <- function(date, data, linktable){
 
     if(is.character(date)){

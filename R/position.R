@@ -12,6 +12,7 @@
 #' @param L a vector of variable names in x representing the L pole
 #' @param R a vector of variable names in x representing the R pole
 #' @param N a string containing a variable name in x representing N (total number of coded sentences)
+#' @export
 manifesto_positions <- function(x, L_vars, R_vars, N_vars = c('total'), method = 'lowe'){
 
     calculate_manifesto_position(x[, L_vars], x[, R_vars], x[N_vars], method=method)
@@ -27,6 +28,7 @@ manifesto_positions <- function(x, L_vars, R_vars, N_vars = c('total'), method =
 #' @param R a vector of variable names in x representing the R pole
 #' @param N a string containing a variable name in x representing N (total number of coded sentences)
 #' @param country_seats a dataframe specifying a country_id variable for each value in x as well as a 'seats' variable
+#' @export
 manifesto_country_positions <- function(x, L_vars, R_vars, N_vars = c('total'), country_seats, weighted=TRUE, method = 'lowe', na.rm=TRUE){
 
     country_party_postitions <- calculate_manifesto_position(x[, L_vars], x[, R_vars], x[N_vars], method=method)
@@ -58,6 +60,7 @@ manifesto_issue_dimension_position <- function(x, ...) useMethod('manifesto_issu
 #'
 #' @param x a composition object
 #' @param issues a list() of issues, each containg a list containing maninfesto categories for L and R poles
+#' @export
 manifesto_issue_dimension_position.compostion <- function(x, date, data, issues = list(), method='lowe'){
 
     issues_positions <- data.frame()
@@ -93,6 +96,7 @@ manifesto_issue_dimension_position.compostion <- function(x, date, data, issues 
 #' @param L a vector of variable names
 #' @param R a vector of variable names
 #' @param method
+#' @export
 calculate_manifesto_positions <- function(L, R, N, method='lowe'){
 
     L <- (rowSums(data.frame(L))/100)*N
