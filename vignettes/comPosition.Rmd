@@ -1,0 +1,12 @@
+---
+title: "Retrieve EU institutional compositions and positions"
+author: "Maximilian Haag"
+date: \today
+output: pdf_document
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{ Retrieve EU institutional compositions and positions }
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc} 
+---
+

@@ -1,0 +1,25 @@
+Package: comPosition
+Title: Retrieve EU institutional compositions and positions
+Version: 0.0.1
+Maintainer: Maximilian Haag <maximilian.haag@gsi.uni-muenchen.de>
+Description: R packgae that allows for the creation of EU insitutional composition and position datasets across time using various data sources.
+Author: Maximilian Haag
+Depends:
+    R (>= 3.3.1),
+    dplyr
+Imports:
+    tidyr,
+    lubridate,
+    magrittr
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown,
+    dplyr
+VignetteBuilder: knitr
+License: MIT
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/ghxm/comPosition
+BugReports: https://github.com/ghxm/comPosition/issues
+RoxygenNote: 7.1.1
