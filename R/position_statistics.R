@@ -46,17 +46,18 @@ position_statistic <- function(x, w, measure, na.rm = TRUE){
 
         if (sum (w, na.rm=TRUE) <= 1.5){
             scaling <- 100
+            normwt = TRUE
         }else{
-            scaling <- 1
+            normwt = FALSE
         }
 
 
         if(measure == "mean"){
-            return(weighted.mean(x, w*scaling, na.rm = na.rm))
+            return(weighted.mean(x, w, na.rm = na.rm))
         } else if(measure == "median"){
-            return(Hmisc::wtd.quantile(x, w*scaling, probs = c(0.5), na.rm = na.rm)[[1]])
+            return(Hmisc::wtd.quantile(x, w, probs = c(0.5), na.rm = na.rm, normwt = normwt)[[1]])
         } else if(measure == "sd"){
-            return(sqrt(Hmisc::wtd.var(x, w*scaling, na.rm = na.rm)))
+            return(sqrt(Hmisc::wtd.var(x, w, na.rm = na.rm, normwt=normwt)))
         }
 
     }
