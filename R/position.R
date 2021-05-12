@@ -54,14 +54,14 @@ manifesto_country_positions <- function(x, L_vars, R_vars, N_vars = c('total'), 
 }
 
 
-manifesto_issue_dimension_position <- function(x, ...) useMethod('manifesto_issue_dimension_position')
+manifesto_issue_dimension_position <- function(x, ...) UseMethod('manifesto_issue_dimension_position')
 
 #' Generate position on dimensions consisting of issues
 #'
 #' @param x a composition object
 #' @param issues a list() of issues, each containg a list containing maninfesto categories for L and R poles
 #' @export
-manifesto_issue_dimension_position.compostion <- function(x, date, data, issues = list(), method='lowe'){
+manifesto_issue_dimension_position.composition <- function(x, date, data, issues = list(), method='lowe'){
 
     issues_positions <- data.frame()
 
