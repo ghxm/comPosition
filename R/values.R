@@ -1,5 +1,6 @@
 
 
+#' @export
 values <- function(x, ...) UseMethod('values')
 
 #' Retrieve raw positional values in a dataset for given ID(s)
