@@ -10,7 +10,8 @@ Depends:
 Imports:
     tidyr,
     lubridate,
-    magrittr
+    magrittr,
+    Hmisc
 Suggests:
     testthat,
     knitr,
