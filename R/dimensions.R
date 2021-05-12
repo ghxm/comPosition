@@ -89,7 +89,7 @@ eurovoc_issue_dimensions = list('eurovoc_04_politics' = list('L' = c(main_dimens
                                                              'R' = c('per414')),
                                 'eurovoc_20_trade' = list('L' = c('per403'),
                                                              'R' = c('per402')),
-                                'eurovoc_24_finance' = list('L' = c('per403', ''),
+                                'eurovoc_24_finance' = list('L' = c('per403'),
                                                              'R' = c('per402')),
                                 'eurovoc_28_social' = list('L' = c('per503', 'per504'),
                                                              'R' = c('per505')),
