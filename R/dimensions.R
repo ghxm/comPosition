@@ -71,8 +71,52 @@ comm_dimensions <- list(
                       "R" = c("per110"))
 )
 
+#' @export
+get_eurovoc_dimensions <- function(...){
+    eurovoc_issue_dimensions[...]
 
+}
 
-eurovoc_issue_dimensions = list('1' = list('L' = c(),
-                                        'R' = c()))
-
+eurovoc_issue_dimensions = list('eurovoc_04_politics' = list('L' = c(main_dimensions[['eu']][['L']]),
+                                        'R' = c(main_dimensions[['eu']][['R']])),
+                                'eurovoc_08_international' = list('L' = c('per107'),
+                                                             'R' = c('per109')),
+                                'eurovoc_10_european' = list('L' = c(main_dimensions[['eu']][['L']]),
+                                                             'R' = c(main_dimensions[['eu']][['R']])),
+                                'eurovoc_12_law' = list('L' = c('per503', 'per602'),
+                                                             'R' = c('per605', 'per601')),
+                                'eurovoc_16_economics' = list('L' = c('per409'),
+                                                             'R' = c('per414')),
+                                'eurovoc_20_trade' = list('L' = c('per403'),
+                                                             'R' = c('per402')),
+                                'eurovoc_24_finance' = list('L' = c('per403', ''),
+                                                             'R' = c('per402')),
+                                'eurovoc_28_social' = list('L' = c('per503', 'per504'),
+                                                             'R' = c('per505')),
+                                'eurovoc_32_education' = list('L' = c('per506'),
+                                                             'R' = c('per507')),
+                                'eurovoc_36_science' = list('L' = c('per411', 'per108'),
+                                                             'R' = c('per110')),
+                                'eurovoc_40_business' = list('L' = c('per403'),
+                                                             'R' = c('per402')),
+                                'eurovoc_44_employment' = list('L' = c("per403", "per405", "per406", "per412", "per701"),
+                                                             'R' = c("per401", "per407", "per702", "per402", "per414")),
+                                'eurovoc_48_transport' = list('L' = c('per108', 'per411'),
+                                                             'R' = c('per110')),
+                                'eurovoc_52_environment' = list('L' = c('per501', 'per416'), # Lowe 2012
+                                                             'R' = c('per410')),
+                                'eurovoc_56_agriculture' = list('L' = c('per501'),
+                                                             'R' = c('per407')),
+                                'eurovoc_60_agrifoodstuffs' = list('L' = c('per501'),
+                                                             'R' = c('per407')),
+                                'eurovoc_64_production' = list('L' = c('per108', 'per411'),
+                                                             'R' = c('per110')),
+                                'eurovoc_66_energy' = list('L' = c('per501', 'per416', '403'),
+                                                             'R' = c('per410', 'per401')),
+                                'eurovoc_68_industry' = list('L' = c(c("per403", "per405", "per406", "per412", "per701")),
+                                                             'R' = c(c("per401", "per407", "per702", "per402", "per414"))),
+                                'eurovoc_72_geography' = list('L' = c('per107'),
+                                                             'R' = c('per109')),
+                                'eurovoc_76_international' = list('L' = c('per107'),
+                                                              'R' = c('per109'))
+                                )
