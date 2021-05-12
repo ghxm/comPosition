@@ -54,7 +54,7 @@ position_statistic <- function(x, w, measure, na.rm = TRUE){
         if(measure == "mean"){
             return(weighted.mean(x, w*scaling, na.rm = na.rm))
         } else if(measure == "median"){
-            return(Hmisc::wtd.quantile(x, w*scaling, probs = c(0.5), na.rm = na.rm))
+            return(Hmisc::wtd.quantile(x, w*scaling, probs = c(0.5), na.rm = na.rm)[[1]])
         } else if(measure == "sd"){
             return(sqrt(Hmisc::wtd.var(x, w*scaling, na.rm = na.rm)))
         }
