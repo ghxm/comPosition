@@ -44,7 +44,7 @@ position_statistic <- function(x, w, measure, na.rm = TRUE){
         w[is.na(w)] <- 0
 
 
-        if (sum (w, na.rm=TRUE) <= 1){
+        if (sum (w, na.rm=TRUE) <= 1.5){
             scaling <- 100
         }else{
             scaling <- 1
