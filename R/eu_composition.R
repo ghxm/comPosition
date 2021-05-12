@@ -86,8 +86,14 @@ ep <- function(date, data, linktable, type='plenary'){
 
         # subset by date
         parlgov_election_ep <- keep_attributes(parlgov_election_ep[which(parlgov_election_ep$election_type=='ep' &
-                                                          lubridate::parse_date_time(parlgov_election_ep$election_date, orders=c('ymd', 'dmy')) - date <= 3 &
-                                                          lubridate::parse_date_time(parlgov_election_ep$election_date, orders=c('ymd', 'dmy')) - date >= -365*5+3),], parlgov_election_ep)
+                                                          (lubridate::parse_date_time(parlgov_election_ep$election_date, orders=c('ymd', 'dmy')) - date)/60/60/24 <= 3 &
+                                                          (lubridate::parse_date_time(parlgov_election_ep$election_date, orders=c('ymd', 'dmy')) - date)/60/60/24 >= -365*5+3),], parlgov_election_ep)
+
+        # sort out possbile duplicates per country (e.g. croatia accession)
+        country_election_max <- aggregate(parlgov_election_ep[,'election_date'], list(parlgov_election_ep[,'country_id']), max)
+
+        parlgov_election_ep <- parlgov_election_ep[which(parlgov_election_ep$country_id %in% country_election_max[,1] &
+                                                             parlgov_election_ep$election_date %in% country_election_max[,2]),]
 
         # return composititon object
         composition(parlgov_election_ep, from = 'parlgov', 'EP plenary', type='parlgov_election', date=date, linktable=linktable)
