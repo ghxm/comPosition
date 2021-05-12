@@ -4,7 +4,7 @@
 \alias{convert_id}
 \title{Convert party ids between datasets}
 \usage{
-convert_id(id, date = NA, from, to, linktable = NULL)
+convert_id(id, date = NA, from, to, linktable)
 }
 \arguments{
 \item{id}{vector of party IDs}
