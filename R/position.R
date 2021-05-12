@@ -15,7 +15,7 @@
 #' @export
 manifesto_positions <- function(x, L_vars, R_vars, N_vars = c('total'), method = 'lowe'){
 
-    calculate_manifesto_position(x[, L_vars], x[, R_vars], x[N_vars], method=method)
+    calculate_manifesto_positions(x[, L_vars], x[, R_vars], x[N_vars], method=method)
 
 
 }
@@ -31,7 +31,7 @@ manifesto_positions <- function(x, L_vars, R_vars, N_vars = c('total'), method =
 #' @export
 manifesto_country_positions <- function(x, L_vars, R_vars, N_vars = c('total'), country_seats, weighted=TRUE, method = 'lowe', na.rm=TRUE){
 
-    country_party_postitions <- calculate_manifesto_position(x[, L_vars], x[, R_vars], x[N_vars], method=method)
+    country_party_postitions <- calculate_manifesto_positions(x[, L_vars], x[, R_vars], x[N_vars], method=method)
 
     country_party_postitions <- cbind(country_seats, country_party_postitions)
     names(country_party_postitions)[3] <- 'position'
@@ -74,7 +74,7 @@ manifesto_issue_dimension_position.compostion <- function(x, date, data, issues 
         # get values
         vals <- values(x, date=date, data=data, value_vars = c(issue[['L']], issue[['R']]), additional_vars = c('party','total'))
 
-        pos <- calculate_manifesto_position(vals[, issue[['L']]], vals[, issue[['R']]], vals['total'], method=method)
+        pos <- calculate_manifesto_positions(vals[, issue[['L']]], vals[, issue[['R']]], vals['total'], method=method)
 
         # store composition_id, position
         issues_positions <- rbind(issues_positions, cbind(x['composition_id'], pos))
