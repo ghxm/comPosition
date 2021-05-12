@@ -8,9 +8,9 @@
 #' @param to the desired output data for the party IDs, e.g. 'manifesto' to obtain the CMP IDs
 #' @return A vector of matching IDs in the 'to' data
 #' @export
-convert_id <- function(id, date=NA, from, to, linktable = NULL){
+convert_id <- function(id, date=NA, from, to, linktable){
 
-    if (is.null(linktable)){
+    if (missing(linktable)){
         linktable <- partyfacts_linktable(ignore_years = TRUE)
     }
 

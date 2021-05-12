@@ -61,7 +61,7 @@ determine_ep_election_date <- function(date, election_dates){
 
 #' Create an EP composition
 #' @export
-ep <- function(date, data = NA, linktable, type='plenary'){
+ep <- function(date, data, linktable, type='plenary'){
 
     if (is.character(date)){
         date <- lubridate::parse_date_time(date, orders=c('ymd', 'dmy'))
@@ -69,13 +69,13 @@ ep <- function(date, data = NA, linktable, type='plenary'){
 
     if(type == 'plenary'){
 
-        if(NROW(data)>1 & !is.na(data)){
+        if(missing(data)){
             parlgov_election <- parlgov_dataset(type='election')
         }else {
             parlgov_election <- data
         }
 
-        if(NROW(linktable)==1 & is.na(linktable)){
+        if(missing(linktable)){
             linktable <- linktable()
         }
 
