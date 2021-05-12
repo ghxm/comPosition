@@ -53,7 +53,7 @@ manifesto_country_positions <- function(x, L_vars, R_vars, N_vars = c('total'), 
 
 }
 
-
+#' @export
 manifesto_issue_dimension_position <- function(x, ...) UseMethod('manifesto_issue_dimension_position')
 
 #' Generate position on dimensions consisting of issues
