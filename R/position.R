@@ -85,7 +85,7 @@ manifesto_issue_dimension_position.composition <- function(x, date, data, issues
     dimension_positions <- aggregate(issues_positions[,2], list(issues_positions[,'composition_id']), mean)
 
     # make sure the positions are in the order of the input composition
-    dimension_positions[x$composition_id, ]
+    dimension_positions[x$composition_id, 2]
 
 }
 
