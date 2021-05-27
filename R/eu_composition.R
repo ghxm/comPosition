@@ -131,3 +131,28 @@ council <- function(date, data, linktable){
     composition(data_council, from='parlgov', name = 'Council', type='parlogv_cabinet', date=date, linktable=linktable)
 
 }
+
+
+# Commission ----
+#' Create a council composition from cabinet parlgov data
+#'
+#' @param x a dataset of commissioners
+#'
+#' @return the input dataset x subset to contain only commissioners present in the council for a given date
+#' @export
+commission <- function(date, data, linktable){
+
+    if(is.character(date)){
+        date <- lubridate::parse_date_time(date, orders=c('ymd', 'dmy'))
+    }
+
+    # fill in NA end dates
+    data[which(data$end_date==""),c('end_date')] <- format(lubridate::today('UTC'), "%Y-%m-%d")
+
+    data_commission_date <- keep_attributes(data[which(lubridate::parse_date_time(data$start_date, orders=c('ymd', 'dmy'))<=date & lubridate::parse_date_time(data$end_date, orders=c('ymd', 'dmy'))>=date),], data)
+
+    composition(data_commission_date, from='parlgov', name = 'Commission', type='parlgov_commission', date=date, linktable=linktable)
+
+}
+
+

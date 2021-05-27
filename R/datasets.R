@@ -103,3 +103,23 @@ download_parlgov <- function(base_url = 'http://www.parlgov.org/static/data/deve
     read.csv(paste0(base_url, 'view_', type, '.csv'), as.is=TRUE)
 
 }
+
+
+#' @export
+parlgov_commission_dataset <- function(url="http://www.parlgov.org/static/data/development-utf-8/external_commissioner_doering.csv"){
+
+    raw <- download_parlgov_commissioners(url=url)
+    out <- dataset(raw, type=paste0('parlgov_commission'))
+
+    out
+
+}
+
+#'@export
+download_parlgov_commission <- function(url="http://www.parlgov.org/static/data/development-utf-8/external_commissioner_doering.csv"){
+
+    read.csv(url, as.is=TRUE)
+
+}
+
+
