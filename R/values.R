@@ -52,7 +52,7 @@ values.default <- function(input, date = NULL, data, value_vars, tolerance_lower
 
     df_ids <- as.data.frame(input)
     names(df_ids) <- id_var
-    df_ids$o <- 1:NROW(df_ids)
+    df_ids$o <- seq_len(NROW(df_ids))
 
 
     # merge input with values and return that (in order to make the output match input vector)

@@ -63,7 +63,7 @@ composition <- function(x, from, name = attr(x, 'name'), type = attr(x, 'name'),
         }
     }
 
-    out$composition_id <- 1:NROW(out)
+    out$composition_id <- seq_len(NROW(out))
 
     out
 }
