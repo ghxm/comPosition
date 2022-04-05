@@ -4,4 +4,4 @@
 [![codecov.io](https://codecov.io/github/ghxm/comPosition/coverage.svg?branch=master)](https://codecov.io/github/ghxm/comPosition?branch=master)
 
 
-Not in an operational state, do not use - public for convenience only.
+Development version, do not use - public for convenience only.
