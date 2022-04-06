@@ -4,7 +4,7 @@
 [![codecov.io](https://codecov.io/github/ghxm/comPosition/coverage.svg?branch=master)](https://codecov.io/github/ghxm/comPosition?branch=master)
 
 
-*WARNING: Development version - use at your own risk. [Contact the author](mailto:maximilian.haag@gsi.uni-muenchen.de?subject=comPosition R package) for further information on the package status. For bug reports, questions and features, please refer to the [GitHub Issues](https://github.com/ghxm/comPosition/issues).*
+*WARNING: Development version - use at your own risk. <a href="mailto:maximilian.haag@gsi.uni-muenchen.de?subject=comPosition R package">Contact the author</a> for further information on the package status. For bug reports, questions and features, please refer to the [GitHub Issues](https://github.com/ghxm/comPosition/issues).*
 
 
 ## Description
