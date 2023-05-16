@@ -23,4 +23,4 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/ghxm/comPosition
 BugReports: https://github.com/ghxm/comPosition/issues
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
