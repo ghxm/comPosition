@@ -1,6 +1,6 @@
 
 
-#' Convert party ids between datasets
+#' Create a table of ids between datasets (WARNING: do not use this directly to convert IDs, use `convert_ids` instead)
 #'
 #' @param id vector of party IDs
 #' @param date date for the party IDs (if not set, the function will return all matching ids regardless of recorded party years)
@@ -8,7 +8,7 @@
 #' @param to the desired output data for the party IDs, e.g. 'manifesto' to obtain the CMP IDs
 #' @return A vector of matching IDs in the 'to' data
 #' @export
-convert_id <- function(id, date=NA, from, to, linktable){
+convert_id_table <- function(id, date=NA, from, to, linktable){
 
     if (missing(linktable)){
         linktable <- partyfacts_linktable(ignore_years = TRUE)
@@ -42,6 +42,17 @@ convert_id <- function(id, date=NA, from, to, linktable){
         return(out)
     }
 
+}
+
+#' Convert a vector of IDs between datasets
+#' @param id vector of party IDs
+#' @param date date for the party IDs (if not set, the function will return all matching ids regardless of recorded party years)
+#' @param from the (data) source of the input IDs, e.g. 'parlgov' to convert ParlGov IDs into another ID format
+#' @param to the desired output data for the party IDs, e.g. 'manifesto' to obtain the CMP IDs
+#' @return A vector of matching IDs in the 'to' data
+convert_ids <- function(id, date=NA, from, to, linktable){
+
+    sapply(id, convert_id_table, date=date, from=from, to=to, linktable=linktable)
 }
 
 

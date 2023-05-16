@@ -7,7 +7,7 @@
 
 
 
-# @TODO: create composition constructur
+# @TODO: create composition constructor
 # https://adv-r.hadley.nz/s3.html
 new_composition <- function(){
 
@@ -93,7 +93,7 @@ add_id_col <- function(x, ...) UseMethod("add_id_col")
 add_id_col.composition <- function(x, date = NA, to = c(), from = attr(x, 'from'), party_id_var = attr(x, 'party_id_var'), linktable = attr(x, 'linktable')){
 
     # convert ids, create table
-    id_table <- convert_id(x[,party_id_var], date = date, from=from, to=c(from, to), linktable=linktable)
+    id_table <- convert_id_table(x[,party_id_var], date = date, from=from, to=c(from, to), linktable=linktable)
 
     out <- merge(x, id_table, by.x = party_id_var, by.y=from, all.x=TRUE)
 
