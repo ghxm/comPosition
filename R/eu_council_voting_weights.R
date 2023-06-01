@@ -15,7 +15,8 @@ CouncilVotingData <- function (country_id, date.var, method = "") {
 
     #vw.columns <- 13
 
-    # Data (edited for Croatia and Population Voting Weights from 2014-11-01 on)
+    # Data
+    # (edited for Croatia and Population Voting Weights from 2014-11-01 on and for Brexit, new data taken from https://www.consilium.europa.eu/en/council-eu/voting-system/voting-calculator/)
     proportional <- "country_name_short,country_id,1958-01-01,1973-01-01,1981-01-01,1986-01-01,1995-01-01,2004-05-01,2004-11-01,2007-01-01,2013-07-01,2014-11-01,2020-02-01
               SVK,1,,,,,,3,7,7,7,1.06,1.21
               LUX,7,1,2,2,2,2,2,4,4,4,0.12,0.14
