@@ -6,34 +6,41 @@
 #' @param date date for the party IDs (if not set, the function will return all matching ids regardless of recorded party years)
 #' @param from the (data) source of the input IDs, e.g. 'parlgov' to convert ParlGov IDs into another ID format
 #' @param to the desired output data for the party IDs, e.g. 'manifesto' to obtain the CMP IDs
+#' @param linktable a linktable to use for the conversion (if not set, the function will use the partyfacts linktable)
+#' @param fuzzy whether to use fuzzy matching (for `character` input to `from` only) (default: FALSE)
 #' @return A vector of matching IDs in the 'to' data
 #' @export
-convert_id_table <- function(id, date=NA, from, to, linktable){
+convert_id_table <- function(id, date=NA, from, to, linktable, fuzzy=FALSE){
 
     if (missing(linktable)){
         linktable <- partyfacts_linktable(ignore_years = TRUE)
     }
 
-    # @TODO match by name with fuzzy search
-
     # make sure linktable is a dataframe for subsetting to work correctly
     linktable <- as.data.frame(linktable)
 
-    id_match_subset <- which(linktable[,from] %in% id)
-
+    if (fuzzy && is.character(from)) {
+        if (NROW(id) > 1) {
+            stop('fuzzy matching only works for single IDs!')
+        }
+        # Use stringdist to find the closest match
+        distances <- sapply(linktable[,from], function(x) stringdist::stringdist(x, id, method = "jw"))
+        id_match_subset <- which(distances == min(distances))
+    } else {
+        id_match_subset <- which(linktable[,from] %in% id)
+    }
 
     # subset the linktable
-    if (is.na(date)){
-        out <- linktable[id_match_subset,to]
-    }else{
 
-        if(!('year_first' %in% names(id_match_subset))){
+    ## check if date is set
+    if (!is.na(date)&!('year_first' %in% names(linktable))){
             stop('linktable does not contain date variables!')
-        }
-
+    } else {
         year <- lubridate::year(lubridate::as_date(date))
-        out <- linktable[id_match_subset&linktable$year_first>=year & (linktable$year_last<=year|is.na(linktable$year_last<=year)),to]
     }
+
+    out <- linktable[id_match_subset, ] |>
+        {\(df) if (is.na(date)) df[, to] else df[df$year_first >= year & (df$year_last <= year | is.na(df$year_last)), to]}()
 
     # if no matching ids found
     if (length(out)==0){
@@ -50,9 +57,9 @@ convert_id_table <- function(id, date=NA, from, to, linktable){
 #' @param from the (data) source of the input IDs, e.g. 'parlgov' to convert ParlGov IDs into another ID format
 #' @param to the desired output data for the party IDs, e.g. 'manifesto' to obtain the CMP IDs
 #' @return A vector of matching IDs in the 'to' data
-convert_ids <- function(id, date=NA, from, to, linktable){
+convert_ids <- function(id, date=NA, from, to, linktable, fuzzx=FALSE){
 
-    sapply(id, convert_id_table, date=date, from=from, to=to, linktable=linktable)
+    sapply(id, convert_id_table, date=date, from=from, to=to, linktable=linktable, fuzzy=fuzzy)
 }
 
 
