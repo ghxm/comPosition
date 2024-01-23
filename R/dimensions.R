@@ -47,6 +47,7 @@ comm_dimensions <- list(
     "INTA" = main_dimensions[['rile_econ']], # rather than intmarket?
     "ITRE" = list("L" = c(main_dimensions[['eu']][['L']], "per411"),
                   "R" = c(main_dimensions[['eu']][['R']])),
+    "INST" = main_dimensions[['eu']],
     "JURI" = main_dimensions[['rile_econ']], #list("L" = c(main_dimensions[['eu']][['L']], "per107"),
     # "R" = c(main_dimensions[['eu']][['R']], "per109")),
     "LIBE" = list("L" = c("per201", "per503", "per705", "per602", "per607"),
@@ -70,6 +71,10 @@ comm_dimensions <- list(
     "y_trans1" = list("L" = c("per108", "per411"),
                       "R" = c("per110"))
 )
+
+comm_dimensions[['ENER']] = comm_dimensions[['ITRE']]
+comm_dimensions[['RELA']] = comm_dimensions[['INTA']]
+
 
 #' @export
 get_eurovoc_dimensions <- function(...){
