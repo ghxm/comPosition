@@ -40,7 +40,7 @@ convert_id_table <- function(id, date=NA, from, to, linktable, fuzzy=FALSE){
     }
 
     out <- linktable[id_match_subset, ] |>
-        {\(df) if (is.na(date)) df[, to] else df[df$year_first >= year & (df$year_last <= year | is.na(df$year_last)), to]}()
+        {\(df) if (is.na(date)) df[, to] else df[df$year_first <= year & (df$year_last >= year | is.na(df$year_last)), to]}()
 
     # if no matching ids found
     if (length(out)==0){
@@ -57,7 +57,7 @@ convert_id_table <- function(id, date=NA, from, to, linktable, fuzzy=FALSE){
 #' @param from the (data) source of the input IDs, e.g. 'parlgov' to convert ParlGov IDs into another ID format
 #' @param to the desired output data for the party IDs, e.g. 'manifesto' to obtain the CMP IDs
 #' @return A vector of matching IDs in the 'to' data
-convert_ids <- function(id, date=NA, from, to, linktable, fuzzx=FALSE){
+convert_ids <- function(id, date=NA, from, to, linktable, fuzzy=FALSE){
 
     sapply(id, convert_id_table, date=date, from=from, to=to, linktable=linktable, fuzzy=fuzzy)
 }

@@ -133,7 +133,7 @@ subset_by_date <- function(x, y=NULL, date, id_var = intersect(names(x), names(y
 
     x_y[which(
         date >= x_y[,date_start_var] &
-            (date>= x_y[,date_end_var] | is.na(x_y[, date_end_var]))
+            (date <= x_y[,date_end_var] | is.na(x_y[, date_end_var]))
     ),]
 
 }

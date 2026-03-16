@@ -117,7 +117,7 @@ determine_match_date <- function(id, date, data, tolerance_lower=0, tolerance_up
         min_diff <- dates_tolerance[which(dates_abs_diff == min(dates_abs_diff))]
 
         # if there are multiple dates with the same (min) distance, select the older over the newer
-        min_diff <- min_diff[which(min(min_diff)==min(min_diff))]
+        min_diff <- min(min_diff)
 
         return(min_diff)
     }else{

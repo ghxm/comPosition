@@ -43,7 +43,7 @@ manifesto_country_positions <- function(x, L_vars, R_vars, N_vars = c('total'), 
         if (weighted) {
             gov_pos <- position_statistic(country_gov_parties[,'position'], w=country_gov_parties[,'seats'], measure='mean', na.rm=na.rm)
         } else {
-            pov_pos <- position_statistic(country_gov_parties[,'position'], measure='mean', na.rm=na.rm)
+            gov_pos <- position_statistic(country_gov_parties[,'position'], measure='mean', na.rm=na.rm)
         }
 
         c('country_id' = y, 'position' = gov_pos)
@@ -99,15 +99,15 @@ manifesto_issue_dimension_position.composition <- function(x, date, data, issues
 #' @export
 calculate_manifesto_positions <- function(L, R, N, method='lowe'){
 
-    L <- (rowSums(data.frame(L))/100)*N
-    R <- (rowSums(data.frame(R))/100)*N
+    L_counts <- (rowSums(data.frame(L))/100)*N
+    R_counts <- (rowSums(data.frame(R))/100)*N
 
     if (method=='lowe'){
-        log((R+0.5)/(L+0.5))
+        log((R_counts+0.5)/(L_counts+0.5))
     }else if (method=='budge'){
-        (R-L)/N
+        (R_counts-L_counts)/N
     }else if (method=='kimfording'){
-        (R-L)/(R+L)
+        (R_counts-L_counts)/(R_counts+L_counts)
     }
 
 
