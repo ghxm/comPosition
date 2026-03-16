@@ -8,10 +8,13 @@
 
 
 
-#' @param x a dataframe containing an ID variable and the value manifesto variables L and R
-#' @param L a vector of variable names in x representing the L pole
-#' @param R a vector of variable names in x representing the R pole
-#' @param N a string containing a variable name in x representing N (total number of coded sentences)
+#' Calculate manifesto positions for each observation
+#'
+#' @param x a dataframe containing manifesto category variables
+#' @param L_vars a vector of variable names in x representing the L pole
+#' @param R_vars a vector of variable names in x representing the R pole
+#' @param N_vars a string containing a variable name in x representing N (total number of coded sentences)
+#' @param method position scaling method: 'lowe' (default), 'budge', or 'kimfording'
 #' @export
 manifesto_positions <- function(x, L_vars, R_vars, N_vars = c('total'), method = 'lowe'){
 
@@ -93,9 +96,12 @@ manifesto_issue_dimension_position.composition <- function(x, date, data, issues
 # @TODO manifesto_country_issue_dimension_position
 
 
-#' @param L a vector of variable names
-#' @param R a vector of variable names
-#' @param method
+#' Calculate manifesto positions from L and R category values
+#'
+#' @param L a data.frame of left-pole manifesto category percentages
+#' @param R a data.frame of right-pole manifesto category percentages
+#' @param N a data.frame containing the total number of coded sentences
+#' @param method position scaling method: 'lowe' (default), 'budge', or 'kimfording'
 #' @export
 calculate_manifesto_positions <- function(L, R, N, method='lowe'){
 

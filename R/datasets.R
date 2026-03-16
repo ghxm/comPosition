@@ -235,6 +235,11 @@ manifesto_latest_version <- function(){
 
 # PARLGOV ----
 
+#' Create a ParlGov dataset object
+#'
+#' @param base_url base URL for ParlGov CSV files
+#' @param type ParlGov view type: 'election', 'cabinet', or 'party'
+#' @return A dataset S3 object
 #' @export
 parlgov_dataset <- function(base_url = 'https://parlgov.org/data/parlgov-development_csv-utf-8/', type){
 
@@ -246,6 +251,11 @@ parlgov_dataset <- function(base_url = 'https://parlgov.org/data/parlgov-develop
 }
 
 
+#' Download a ParlGov CSV file
+#'
+#' @param base_url base URL for ParlGov CSV files
+#' @param type ParlGov view type: 'election', 'cabinet', or 'party'
+#' @return A data.frame
 #' @export
 download_parlgov <- function(base_url = 'https://parlgov.org/data/parlgov-development_csv-utf-8/', type){
 
@@ -254,8 +264,12 @@ download_parlgov <- function(base_url = 'https://parlgov.org/data/parlgov-develo
 }
 
 
+#' Create a commissioner dataset from the Doering/ParlGov data
+#'
+#' @param url URL or file path to the commissioner CSV
 #' @param update If TRUE (default), applies known corrections and additions
 #'   to the Doering dataset (e.g. VDL I commission personnel changes).
+#' @return A dataset S3 object of type 'parlgov_commission'
 #' @export
 parlgov_commission_dataset <- function(url="https://www.parlgov.org/data/parlgov-development_csv-utf-8/external_commissioner_doering.csv", update=TRUE){
 
@@ -271,7 +285,11 @@ parlgov_commission_dataset <- function(url="https://www.parlgov.org/data/parlgov
 
 }
 
-#'@export
+#' Download the Doering commissioner dataset
+#'
+#' @param url URL or file path to the commissioner CSV
+#' @return A data.frame
+#' @export
 download_parlgov_commission <- function(url="https://www.parlgov.org/data/parlgov-development_csv-utf-8/external_commissioner_doering.csv"){
 
     read.csv(url, as.is=TRUE)

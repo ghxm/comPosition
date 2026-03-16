@@ -4,7 +4,7 @@
 \alias{ep}
 \title{Create an EP composition}
 \usage{
-ep(date, data, linktable, type = "plenary")
+ep(date, data, linktable, comittee_name, type = "plenary")
 }
 \description{
 Create an EP composition

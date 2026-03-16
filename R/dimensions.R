@@ -1,4 +1,9 @@
 
+#' Get manifesto categories for a pole of a policy dimension
+#'
+#' @param dimension name of the dimension (e.g. 'rile', 'eu', or a committee name like 'ECON')
+#' @param pole 'L' or 'R'
+#' @return A character vector of manifesto category codes
 #' @export
 get_pole <- function(dimension, pole){
     if (dimension %in% names(main_dimensions)){
@@ -76,6 +81,10 @@ comm_dimensions[['ENER']] = comm_dimensions[['ITRE']]
 comm_dimensions[['RELA']] = comm_dimensions[['INTA']]
 
 
+#' Get EuroVoc-based issue dimension definitions
+#'
+#' @param ... indices or names to subset the dimensions list
+#' @return A list of dimension definitions with L and R poles
 #' @export
 get_eurovoc_dimensions <- function(...){
     eurovoc_issue_dimensions[...]
