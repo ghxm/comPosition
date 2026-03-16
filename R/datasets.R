@@ -254,11 +254,18 @@ download_parlgov <- function(base_url = 'https://parlgov.org/data/parlgov-develo
 }
 
 
+#' @param update If TRUE (default), applies known corrections and additions
+#'   to the Doering dataset (e.g. VDL I commission personnel changes).
 #' @export
-parlgov_commission_dataset <- function(url="https://www.parlgov.org/data/parlgov-development_csv-utf-8/external_commissioner_doering.csv"){
+parlgov_commission_dataset <- function(url="https://www.parlgov.org/data/parlgov-development_csv-utf-8/external_commissioner_doering.csv", update=TRUE){
 
     raw <- download_parlgov_commission(url=url)
-    out <- dataset(raw, type=paste0('parlgov_commission'))
+
+    if (update) {
+        raw <- apply_commissioner_updates(raw)
+    }
+
+    out <- dataset(raw, type='parlgov_commission')
 
     out
 
