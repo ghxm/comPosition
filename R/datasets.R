@@ -45,6 +45,11 @@ dataset <- function(x, type, ...){
 
     }
 
+    if (type == 'parlgov_commission'){
+        attr(x, 'date_start_var') <- 'start_date'
+        attr(x, 'date_end_var') <- 'end_date'
+    }
+
     # @TODO MEP attributes_roles: may need to be transformed to account for multiple memberships...
     if (type %in% c('mep_roles')){
         attr(x, 'id_var') <- 'id'
@@ -65,8 +70,71 @@ dataset <- function(x, type, ...){
         }
     }
 
+    # Auto-detect data cutoff from the most recent date in the data
+    attr(x, 'data_cutoff') <- detect_data_cutoff(x)
 
     x
+}
+
+
+#' Detect the most recent date in a dataset to use as a data cutoff
+#'
+#' @param x a dataset object
+#' @return A Date or NA if no date column can be found
+detect_data_cutoff <- function(x){
+
+    # Try date columns in order of preference
+    date_cols <- c(attr(x, 'date_start_var'), attr(x, 'date_var'),
+                   attr(x, 'date_end_var'))
+    date_cols <- date_cols[!is.na(date_cols) & date_cols %in% names(x)]
+
+    if (length(date_cols) == 0) return(NA)
+
+    # Use the first available date column as the primary indicator
+    col <- date_cols[1]
+    dates <- x[, col]
+    dates <- dates[!is.na(dates) & dates != ""]
+
+    if (length(dates) == 0) return(NA)
+
+    # Try multiple date parsing strategies
+    parsed <- suppressWarnings(
+        lubridate::parse_date_time(dates, orders = c('ymd', 'dmy', 'Ymd', 'dmY'))
+    )
+
+    if (all(is.na(parsed))) return(NA)
+
+    lubridate::as_date(max(parsed, na.rm = TRUE))
+}
+
+
+#' Check whether a requested date exceeds a dataset's data cutoff
+#'
+#' Issues a warning if the date is beyond the most recent observation in the data.
+#'
+#' @param date the requested composition date
+#' @param data a dataset object
+#' @param institution name of the institution (for the warning message)
+check_data_cutoff <- function(date, data, institution = ""){
+
+    cutoff <- attr(data, 'data_cutoff')
+    if (is.null(cutoff) || is.na(cutoff)) return(invisible(NULL))
+
+    if (is.character(date)){
+        date <- lubridate::parse_date_time(date, orders = c('ymd', 'dmy'))
+    }
+
+    if (date > cutoff) {
+        warning(
+            if (institution != "") paste0(institution, ": ") else "",
+            "Requested date (", format(date, "%Y-%m-%d"), ") is beyond the data cutoff (",
+            format(cutoff, "%Y-%m-%d"), "). ",
+            "The underlying data may not cover this period, leading to incomplete or incorrect compositions.",
+            call. = FALSE
+        )
+    }
+
+    invisible(NULL)
 }
 
 

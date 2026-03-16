@@ -75,6 +75,8 @@ ep <- function(date, data, linktable, comittee_name, type='plenary'){
             parlgov_election <- data
         }
 
+        check_data_cutoff(date, parlgov_election, "EP")
+
         if(missing(linktable)){
             linktable <- linktable()
         }
@@ -125,6 +127,8 @@ council <- function(date, data, linktable){
         date <- lubridate::parse_date_time(date, orders=c('ymd', 'dmy'))
     }
 
+    check_data_cutoff(date, data, "Council")
+
     # subset to EU
     data_eu <- subset_to_eu(data, date)
 
@@ -152,6 +156,8 @@ commission <- function(date, data, linktable){
     if(is.character(date)){
         date <- lubridate::parse_date_time(date, orders=c('ymd', 'dmy'))
     }
+
+    check_data_cutoff(date, data, "Commission")
 
     # fill in NA end dates
     data[which(data$end_date==""),c('end_date')] <- format(lubridate::today('UTC'), "%Y-%m-%d")
