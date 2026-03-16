@@ -45,6 +45,14 @@ dataset <- function(x, type, ...){
 
     }
 
+    # @TODO MEP attributes_roles: may need to be transformed to account for multiple memberships...
+    if (type %in% c('mep_roles')){
+        attr(x, 'id_var') <- 'id'
+        attr(x, 'date_start_var') <- 'date_start'
+        attr(x, 'date_end_var') <- 'date_end'
+
+    }
+
 
 
 
@@ -65,29 +73,102 @@ dataset <- function(x, type, ...){
 
 
 # MANIFESTO (CMP) ----
+
+#' Create a manifesto dataset object
+#'
+#' Downloads the Manifesto Project Dataset (MPDS) via the official API and
+#' wraps it as a dataset S3 object. Requires a free API key from
+#' \url{https://manifesto-project.wzb.eu/signup}.
+#'
+#' @param api_key Manifesto Project API key. If NULL, reads from the
+#'   MANIFESTO_API_KEY environment variable.
+#' @param version Dataset version to download (e.g. "MPDS2025a"). Use
+#'   "latest" (default) to automatically fetch the most recent version,
+#'   or a path/URL to a local CSV file.
+#' @return A dataset S3 object of type 'manifesto'
 #' @export
-manifesto_dataset <- function(base_url = 'https://manifesto-project.wzb.eu/down/data/2020b/datasets/MPDataset_MPDS2020b.csv'){
+manifesto_dataset <- function(api_key = NULL, version = 'latest'){
 
-    raw <- download_manifesto(base_url)
-
-    out <- dataset(raw, type='manifesto')
-
+    raw <- download_manifesto(api_key = api_key, version = version)
+    dataset(raw, type='manifesto')
 
 }
 
+#' Download the Manifesto Project Dataset
+#'
+#' @param api_key Manifesto Project API key. If NULL, reads from the
+#'   MANIFESTO_API_KEY environment variable.
+#' @param version Dataset version (e.g. "MPDS2025a"), "latest", or a
+#'   path/URL to a local CSV file.
+#' @return A data.frame of the manifesto dataset
 #' @export
-download_manifesto <- function(base_url = 'https://manifesto-project.wzb.eu/down/data/2020b/datasets/MPDataset_MPDS2020b.csv'){
+download_manifesto <- function(api_key = NULL, version = 'latest'){
 
-    read.csv(base_url, as.is=TRUE)
+    # If version is a file path or URL, read directly
+    if (file.exists(version) || grepl('^https?://', version)) {
+        return(read.csv(version, as.is = TRUE))
+    }
 
+    # Resolve API key
+    if (is.null(api_key)) {
+        api_key <- Sys.getenv('MANIFESTO_API_KEY', unset = '')
+    }
+    if (api_key == '') {
+        stop('No API key provided. Set the MANIFESTO_API_KEY environment variable or pass api_key directly.\n',
+             'Get a free key at https://manifesto-project.wzb.eu/signup')
+    }
 
+    # Resolve version
+    if (version == 'latest') {
+        version <- manifesto_latest_version()
+    }
+
+    # Download via API
+    api_url <- paste0('https://manifesto-project.wzb.eu/api/v1/get_core?',
+                      'key=', version,
+                      '&api_key=', api_key,
+                      '&kind=csv&raw=true')
+
+    tmpfile <- tempfile(fileext = '.csv')
+    on.exit(unlink(tmpfile))
+
+    resp <- tryCatch(
+        utils::download.file(api_url, tmpfile, quiet = TRUE, mode = 'w'),
+        error = function(e) stop('Failed to download manifesto data: ', conditionMessage(e))
+    )
+
+    if (resp != 0 || file.size(tmpfile) < 100) {
+        stop('Download failed. Check your API key and internet connection.')
+    }
+
+    read.csv(tmpfile, as.is = TRUE)
+
+}
+
+#' List available Manifesto Project Dataset versions
+#'
+#' @return A data.frame with columns 'id' and 'name'
+#' @export
+manifesto_versions <- function(){
+    url <- 'https://manifesto-project.wzb.eu/api/v1/list_core_versions'
+    raw <- readLines(url, warn = FALSE)
+    parsed <- jsonlite::fromJSON(raw)
+    parsed$datasets
+}
+
+#' Get the latest Manifesto Project Dataset version identifier
+#'
+#' @return A character string (e.g. "MPDS2025a")
+manifesto_latest_version <- function(){
+    versions <- manifesto_versions()
+    versions$id[NROW(versions)]
 }
 
 
 # PARLGOV ----
 
 #' @export
-parlgov_dataset <- function(base_url = 'http://www.parlgov.org/static/data/development-cp1252/', type){
+parlgov_dataset <- function(base_url = 'https://parlgov.org/data/parlgov-development_csv-utf-8/', type){
 
     raw <- download_parlgov(base_url = base_url, type = type)
     out <- dataset(raw, type=paste0('parlgov_', type))
@@ -98,7 +179,7 @@ parlgov_dataset <- function(base_url = 'http://www.parlgov.org/static/data/devel
 
 
 #' @export
-download_parlgov <- function(base_url = 'http://www.parlgov.org/static/data/development-cp1252/', type){
+download_parlgov <- function(base_url = 'https://parlgov.org/data/parlgov-development_csv-utf-8/', type){
 
     read.csv(paste0(base_url, 'view_', type, '.csv'), as.is=TRUE)
 
@@ -106,7 +187,7 @@ download_parlgov <- function(base_url = 'http://www.parlgov.org/static/data/deve
 
 
 #' @export
-parlgov_commission_dataset <- function(url="http://www.parlgov.org/static/data/development-utf-8/external_commissioner_doering.csv"){
+parlgov_commission_dataset <- function(url="https://www.parlgov.org/data/parlgov-development_csv-utf-8/external_commissioner_doering.csv"){
 
     raw <- download_parlgov_commission(url=url)
     out <- dataset(raw, type=paste0('parlgov_commission'))
@@ -116,7 +197,7 @@ parlgov_commission_dataset <- function(url="http://www.parlgov.org/static/data/d
 }
 
 #'@export
-download_parlgov_commission <- function(url="http://www.parlgov.org/static/data/development-utf-8/external_commissioner_doering.csv"){
+download_parlgov_commission <- function(url="https://www.parlgov.org/data/parlgov-development_csv-utf-8/external_commissioner_doering.csv"){
 
     read.csv(url, as.is=TRUE)
 
