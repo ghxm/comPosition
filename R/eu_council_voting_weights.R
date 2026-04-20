@@ -136,8 +136,18 @@ CouncilVotingData <- function (country_id, date.var, method = "") {
 
 #' Calculate voting weight in the Council for a specific date
 #'
-#' @param country_id vector of ParlGov country ids
-#' @param date a date in character format
+#' Looks up historical Council voting weights for given countries at a given
+#' date. Supports proportional (treaty-based), Banzhaf/bi-normal, and SSI
+#' (Shapley-Shubik Index) weighting methods.
+#'
+#' @param country_id vector of ParlGov country IDs (integer)
+#' @param date date in character format (YYYY-MM-DD) or a Date/POSIXt object
+#' @param type weighting method: \code{"proportional"} (treaty weights),
+#'   \code{"bi_normal"} (Banzhaf index), or \code{"ssi"} (Shapley-Shubik index).
+#'   Defaults to \code{"bi_normal"}.
+#' @return A numeric vector of voting weights (same length as \code{country_id}).
+#'   Returns \code{NA} for countries not found in the weight table or if the
+#'   date is outside the covered range (pre-1958 or future).
 #' @export
 council_voting_weights <- function (country_id, date, type = "bi_normal") {
     # Calculate voting weight in the Council for a specific date
