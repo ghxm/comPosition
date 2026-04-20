@@ -43,14 +43,13 @@ position_statistic <- function(x, w, measure, na.rm = TRUE){
 
         w[is.na(w)] <- 0
 
-
-        if (sum (w, na.rm=TRUE) <= 1.5){
-            scaling <- 100
+        # Use normwt when weights are proportions (summing to ~1) rather than
+        # counts (like seats), so Hmisc normalizes to sample size
+        if (sum(w, na.rm = TRUE) <= 1.5){
             normwt = TRUE
         }else{
             normwt = FALSE
         }
-
 
         if(measure == "mean"){
             return(weighted.mean(x, w, na.rm = na.rm))
@@ -61,6 +60,8 @@ position_statistic <- function(x, w, measure, na.rm = TRUE){
         }
 
     }
+
+    stop('Unknown measure: "', measure, '". Use "mean", "median", or "sd".')
 
 
 }
