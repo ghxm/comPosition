@@ -70,65 +70,93 @@ dataset <- function(x, type, ...){
         }
     }
 
-    # Auto-detect data cutoff from the most recent date in the data
-    attr(x, 'data_cutoff') <- detect_data_cutoff(x)
+    # Auto-detect data coverage range from dates in the data
+    cutoffs <- detect_data_cutoffs(x)
+    attr(x, 'data_cutoff_start') <- cutoffs$start
+    attr(x, 'data_cutoff') <- cutoffs$end
 
     x
 }
 
 
-#' Detect the most recent date in a dataset to use as a data cutoff
+#' Detect the earliest and most recent dates in a dataset
+#'
+#' Uses \code{date_start_var} (or \code{date_var}) for the start cutoff and
+#' \code{date_end_var} (or fallback) for the end cutoff, so datasets with
+#' separate start/end columns get accurate coverage boundaries.
 #'
 #' @param x a dataset object
-#' @return A Date or NA if no date column can be found
-detect_data_cutoff <- function(x){
+#' @return A list with \code{start} and \code{end} (Date or NA)
+detect_data_cutoffs <- function(x){
 
-    # Try date columns in order of preference
-    date_cols <- c(attr(x, 'date_start_var'), attr(x, 'date_var'),
-                   attr(x, 'date_end_var'))
-    date_cols <- date_cols[!is.na(date_cols) & date_cols %in% names(x)]
+    parse_dates <- function(col) {
+        if (is.null(col) || !(col %in% names(x))) return(NULL)
+        vals <- x[, col]
+        vals <- vals[!is.na(vals) & vals != ""]
+        if (length(vals) == 0) return(NULL)
+        parsed <- suppressWarnings(
+            lubridate::parse_date_time(vals, orders = c('ymd', 'dmy', 'Ymd', 'dmY'))
+        )
+        parsed[!is.na(parsed)]
+    }
 
-    if (length(date_cols) == 0) return(NA)
+    # For start cutoff: prefer date_start_var, fall back to date_var
+    start_cols <- c(attr(x, 'date_start_var'), attr(x, 'date_var'))
+    start_dates <- NULL
+    for (col in start_cols) {
+        start_dates <- parse_dates(col)
+        if (!is.null(start_dates)) break
+    }
 
-    # Use the first available date column as the primary indicator
-    col <- date_cols[1]
-    dates <- x[, col]
-    dates <- dates[!is.na(dates) & dates != ""]
+    # For end cutoff: prefer date_end_var, fall back to date_start_var, then date_var
+    end_cols <- c(attr(x, 'date_end_var'), attr(x, 'date_start_var'), attr(x, 'date_var'))
+    end_dates <- NULL
+    for (col in end_cols) {
+        end_dates <- parse_dates(col)
+        if (!is.null(end_dates)) break
+    }
 
-    if (length(dates) == 0) return(NA)
-
-    # Try multiple date parsing strategies
-    parsed <- suppressWarnings(
-        lubridate::parse_date_time(dates, orders = c('ymd', 'dmy', 'Ymd', 'dmY'))
+    list(
+        start = if (!is.null(start_dates)) lubridate::as_date(min(start_dates)) else NA,
+        end = if (!is.null(end_dates)) lubridate::as_date(max(end_dates)) else NA
     )
-
-    if (all(is.na(parsed))) return(NA)
-
-    lubridate::as_date(max(parsed, na.rm = TRUE))
 }
 
 
-#' Check whether a requested date exceeds a dataset's data cutoff
+#' Check whether a requested date is outside a dataset's coverage range
 #'
-#' Issues a warning if the date is beyond the most recent observation in the data.
+#' Issues a warning if the date is before the earliest or after the most
+#' recent observation in the data.
 #'
 #' @param date the requested composition date
 #' @param data a dataset object
 #' @param institution name of the institution (for the warning message)
 check_data_cutoff <- function(date, data, institution = ""){
 
-    cutoff <- attr(data, 'data_cutoff')
-    if (is.null(cutoff) || is.na(cutoff)) return(invisible(NULL))
-
     if (is.character(date)){
         date <- lubridate::parse_date_time(date, orders = c('ymd', 'dmy'))
     }
 
-    if (date > cutoff) {
+    prefix <- if (institution != "") paste0(institution, ": ") else ""
+
+    cutoff_start <- attr(data, 'data_cutoff_start')
+    cutoff_end <- attr(data, 'data_cutoff')
+
+    if (!is.null(cutoff_start) && !is.na(cutoff_start) && date < cutoff_start) {
         warning(
-            if (institution != "") paste0(institution, ": ") else "",
+            prefix,
+            "Requested date (", format(date, "%Y-%m-%d"), ") is before the data starts (",
+            format(cutoff_start, "%Y-%m-%d"), "). ",
+            "The underlying data may not cover this period, leading to incomplete or incorrect compositions.",
+            call. = FALSE
+        )
+    }
+
+    if (!is.null(cutoff_end) && !is.na(cutoff_end) && date > cutoff_end) {
+        warning(
+            prefix,
             "Requested date (", format(date, "%Y-%m-%d"), ") is beyond the data cutoff (",
-            format(cutoff, "%Y-%m-%d"), "). ",
+            format(cutoff_end, "%Y-%m-%d"), "). ",
             "The underlying data may not cover this period, leading to incomplete or incorrect compositions.",
             call. = FALSE
         )
