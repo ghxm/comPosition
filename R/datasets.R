@@ -235,15 +235,50 @@ manifesto_latest_version <- function(){
 
 # PARLGOV ----
 
+#' Resolve a file download URL from Harvard Dataverse
+#'
+#' Queries the Dataverse API for the latest version of a dataset and returns
+#' the access URL for the specified file.
+#'
+#' @param filename the file name to look up (e.g. "view_election.tab")
+#' @param doi persistent identifier of the dataset (default: ParlGov 2024)
+#' @param base_url Dataverse instance base URL
+#' @return A download URL string
+dataverse_file_url <- function(filename,
+                               doi = 'doi:10.7910/DVN/2VZ5ZC',
+                               base_url = 'https://dataverse.harvard.edu') {
+
+    api_url <- paste0(base_url, '/api/datasets/:persistentId?persistentId=', doi)
+
+    metadata <- tryCatch(
+        jsonlite::fromJSON(api_url),
+        error = function(e) stop('Failed to reach Dataverse API: ', conditionMessage(e))
+    )
+
+    files <- metadata$data$latestVersion$files
+    match_idx <- which(files$dataFile$filename == filename)
+
+    if (length(match_idx) == 0) {
+        stop('File "', filename, '" not found in Dataverse dataset ', doi)
+    }
+
+    file_id <- files$dataFile$id[match_idx[1]]
+    paste0(base_url, '/api/access/datafile/', file_id)
+}
+
+
 #' Create a ParlGov dataset object
 #'
-#' @param base_url base URL for ParlGov CSV files
+#' Downloads ParlGov data from Harvard Dataverse (stable release) and wraps
+#' it as a dataset S3 object.
+#'
 #' @param type ParlGov view type: 'election', 'cabinet', or 'party'
+#' @param doi Dataverse persistent identifier for the ParlGov dataset
 #' @return A dataset S3 object
 #' @export
-parlgov_dataset <- function(base_url = 'https://parlgov.org/data/parlgov-development_csv-utf-8/', type){
+parlgov_dataset <- function(type, doi = 'doi:10.7910/DVN/2VZ5ZC'){
 
-    raw <- download_parlgov(base_url = base_url, type = type)
+    raw <- download_parlgov(type = type, doi = doi)
     out <- dataset(raw, type=paste0('parlgov_', type))
 
     out
@@ -251,22 +286,37 @@ parlgov_dataset <- function(base_url = 'https://parlgov.org/data/parlgov-develop
 }
 
 
-#' Download a ParlGov CSV file
+#' Download a ParlGov data file from Harvard Dataverse
 #'
-#' @param base_url base URL for ParlGov CSV files
 #' @param type ParlGov view type: 'election', 'cabinet', or 'party'
+#' @param doi Dataverse persistent identifier for the ParlGov dataset
 #' @return A data.frame
 #' @export
-download_parlgov <- function(base_url = 'https://parlgov.org/data/parlgov-development_csv-utf-8/', type){
+download_parlgov <- function(type, doi = 'doi:10.7910/DVN/2VZ5ZC'){
 
-    read.csv(paste0(base_url, 'view_', type, '.csv'), as.is=TRUE)
+    filename <- paste0('view_', type, '.tab')
+    url <- dataverse_file_url(filename, doi = doi)
 
+    tmpfile <- tempfile(fileext = '.tab')
+    on.exit(unlink(tmpfile))
+
+    resp <- tryCatch(
+        utils::download.file(url, tmpfile, quiet = TRUE, mode = 'wb'),
+        error = function(e) stop('Failed to download ParlGov data: ', conditionMessage(e))
+    )
+
+    if (resp != 0 || file.size(tmpfile) < 100) {
+        stop('Download failed. Check your internet connection.')
+    }
+
+    read.delim(tmpfile, as.is = TRUE)
 }
 
 
 #' Create a commissioner dataset from the Doering/ParlGov data
 #'
-#' @param url URL or file path to the commissioner CSV
+#' @param url URL or file path to the commissioner CSV. If the URL is
+#'   unreachable, falls back to a bundled snapshot shipped with the package.
 #' @param update If TRUE (default), applies known corrections and additions
 #'   to the Doering dataset (e.g. VDL I commission personnel changes).
 #' @return A dataset S3 object of type 'parlgov_commission'
@@ -287,13 +337,30 @@ parlgov_commission_dataset <- function(url="https://www.parlgov.org/data/parlgov
 
 #' Download the Doering commissioner dataset
 #'
+#' Attempts to download from the given URL. If the download fails, falls back
+#' to a snapshot bundled with the package.
+#'
 #' @param url URL or file path to the commissioner CSV
 #' @return A data.frame
 #' @export
 download_parlgov_commission <- function(url="https://www.parlgov.org/data/parlgov-development_csv-utf-8/external_commissioner_doering.csv"){
 
-    read.csv(url, as.is=TRUE)
+    # Try downloading from URL
+    result <- tryCatch(
+        read.csv(url, as.is=TRUE),
+        error = function(e) NULL
+    )
 
+    if (!is.null(result)) return(result)
+
+    # Fall back to bundled snapshot
+    bundled <- system.file('extdata', 'commissioner_doering.csv', package = 'comPosition')
+    if (bundled == '') {
+        stop('Could not download commissioner data from URL and no bundled fallback found.')
+    }
+
+    message('URL unreachable, using bundled commissioner data snapshot.')
+    read.csv(bundled, as.is = TRUE)
 }
 
 
