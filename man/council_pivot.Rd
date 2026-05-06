@@ -26,7 +26,8 @@ auto-detecting the regime}
 
 \item{regime}{character; force a specific voting regime. \code{"auto"}
 (default) detects from the date. \code{"lisbon"} forces the post-Lisbon
-dual threshold. \code{"nice"} forces the Nice Treaty single threshold.}
+dual threshold. \code{"nice"} forces the Nice Treaty single threshold.
+\code{"unanimity"} requires all member states (weights are irrelevant).}
 
 \item{threshold_states}{numeric; fraction of member states required.
 Defaults to 0.55 for Lisbon, (floor(n/2)+1)/n for Nice (strict majority).
@@ -70,7 +71,14 @@ The function auto-detects the voting regime based on the date:
 }
 
 The \code{regime} parameter can be used to force a specific calculation mode
-regardless of the date. Note that forcing \code{"lisbon"} on pre-2014 dates
-is not meaningful because the proportional weights for earlier periods are
-treaty vote counts, not population shares.
+regardless of the date. \code{"unanimity"} is also available: it requires
+100\% of member states, making every country pivotal. Under unanimity the
+core spans the full range of positions and the midpoint is
+\code{(min + max) / 2}. Weights are ignored. The same result can be achieved
+manually with any regime by setting \code{threshold_states = 1.0} (and
+\code{threshold_pop = 1.0} for Lisbon).
+
+Note that forcing \code{"lisbon"} on pre-2014 dates is not meaningful
+because the proportional weights for earlier periods are treaty vote counts,
+not population shares.
 }

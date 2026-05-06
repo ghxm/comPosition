@@ -39,9 +39,16 @@ nice_qmv_threshold <- function(date) {
 #' }
 #'
 #' The \code{regime} parameter can be used to force a specific calculation mode
-#' regardless of the date. Note that forcing \code{"lisbon"} on pre-2014 dates
-#' is not meaningful because the proportional weights for earlier periods are
-#' treaty vote counts, not population shares.
+#' regardless of the date. \code{"unanimity"} is also available: it requires
+#' 100\% of member states, making every country pivotal. Under unanimity the
+#' core spans the full range of positions and the midpoint is
+#' \code{(min + max) / 2}. Weights are ignored. The same result can be achieved
+#' manually with any regime by setting \code{threshold_states = 1.0} (and
+#' \code{threshold_pop = 1.0} for Lisbon).
+#'
+#' Note that forcing \code{"lisbon"} on pre-2014 dates is not meaningful
+#' because the proportional weights for earlier periods are treaty vote counts,
+#' not population shares.
 #'
 #' @param positions numeric vector of country policy positions
 #' @param country_id integer vector of ParlGov country IDs (same length as
@@ -51,6 +58,7 @@ nice_qmv_threshold <- function(date) {
 #' @param regime character; force a specific voting regime. \code{"auto"}
 #'   (default) detects from the date. \code{"lisbon"} forces the post-Lisbon
 #'   dual threshold. \code{"nice"} forces the Nice Treaty single threshold.
+#'   \code{"unanimity"} requires all member states (weights are irrelevant).
 #' @param threshold_states numeric; fraction of member states required.
 #'   Defaults to 0.55 for Lisbon, (floor(n/2)+1)/n for Nice (strict majority).
 #'   Only used when not auto-detected or when overriding.
@@ -143,8 +151,15 @@ council_pivot <- function(positions, country_id, date,
             which(cs >= threshold_states & cv >= threshold_votes)[1]
         }
 
+    } else if (regime == "unanimity") {
+        # Every member state must agree; weights are irrelevant
+        pivot_func <- function(ord) {
+            cs <- cumsum(state_weights[ord])
+            which(cs >= 1.0)[1]
+        }
+
     } else {
-        stop('Unknown regime: "', regime, '". Use "auto", "lisbon", or "nice".')
+        stop('Unknown regime: "', regime, '". Use "auto", "lisbon", "nice", or "unanimity".')
     }
 
     # Left pivot: sweep low-to-high

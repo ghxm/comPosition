@@ -125,6 +125,27 @@ test_that("council_pivot Nice regime produces different result from Lisbon", {
 })
 
 
+# --- Unanimity regime ---
+
+test_that("council_pivot unanimity core spans full position range", {
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  interval <- council_pivot(positions, country_ids, "2022-01-01",
+                            regime = "unanimity", return = "interval")
+  expect_equal(unname(interval["left"]), max(positions))
+  expect_equal(unname(interval["right"]), min(positions))
+})
+
+test_that("council_pivot unanimity midpoint is (min + max) / 2", {
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  mid <- council_pivot(positions, country_ids, "2022-01-01", regime = "unanimity")
+  expect_equal(mid, (min(positions) + max(positions)) / 2)
+})
+
+
 # --- NA handling ---
 
 test_that("council_pivot handles all-NA positions", {
