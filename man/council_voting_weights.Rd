@@ -7,10 +7,21 @@
 council_voting_weights(country_id, date, type = "bi_normal")
 }
 \arguments{
-\item{country_id}{vector of ParlGov country ids}
+\item{country_id}{vector of ParlGov country IDs (integer)}
 
-\item{date}{a date in character format}
+\item{date}{date in character format (YYYY-MM-DD) or a Date/POSIXt object}
+
+\item{type}{weighting method: \code{"proportional"} (treaty weights),
+\code{"bi_normal"} (Banzhaf index), or \code{"ssi"} (Shapley-Shubik index).
+Defaults to \code{"bi_normal"}.}
+}
+\value{
+A numeric vector of voting weights (same length as \code{country_id}).
+  Returns \code{NA} for countries not found in the weight table or if the
+  date is outside the covered range (pre-1958 or future).
 }
 \description{
-Calculate voting weight in the Council for a specific date
+Looks up historical Council voting weights for given countries at a given
+date. Supports proportional (treaty-based), Banzhaf/bi-normal, and SSI
+(Shapley-Shubik Index) weighting methods.
 }

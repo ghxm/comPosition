@@ -2,21 +2,18 @@
 % Please edit documentation in R/datasets.R
 \name{download_parlgov}
 \alias{download_parlgov}
-\title{Download a ParlGov CSV file}
+\title{Download a ParlGov data file from Harvard Dataverse}
 \usage{
-download_parlgov(
-  base_url = "https://parlgov.org/data/parlgov-development_csv-utf-8/",
-  type
-)
+download_parlgov(type, doi = "doi:10.7910/DVN/2VZ5ZC")
 }
 \arguments{
-\item{base_url}{base URL for ParlGov CSV files}
-
 \item{type}{ParlGov view type: 'election', 'cabinet', or 'party'}
+
+\item{doi}{Dataverse persistent identifier for the ParlGov dataset}
 }
 \value{
 A data.frame
 }
 \description{
-Download a ParlGov CSV file
+Download a ParlGov data file from Harvard Dataverse
 }

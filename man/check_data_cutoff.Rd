@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasets.R
 \name{check_data_cutoff}
 \alias{check_data_cutoff}
-\title{Check whether a requested date exceeds a dataset's data cutoff}
+\title{Check whether a requested date is outside a dataset's coverage range}
 \usage{
 check_data_cutoff(date, data, institution = "")
 }
@@ -14,5 +14,6 @@ check_data_cutoff(date, data, institution = "")
 \item{institution}{name of the institution (for the warning message)}
 }
 \description{
-Issues a warning if the date is beyond the most recent observation in the data.
+Issues a warning if the date is before the earliest or after the most
+recent observation in the data.
 }

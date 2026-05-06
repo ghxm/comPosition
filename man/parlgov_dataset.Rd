@@ -4,19 +4,17 @@
 \alias{parlgov_dataset}
 \title{Create a ParlGov dataset object}
 \usage{
-parlgov_dataset(
-  base_url = "https://parlgov.org/data/parlgov-development_csv-utf-8/",
-  type
-)
+parlgov_dataset(type, doi = "doi:10.7910/DVN/2VZ5ZC")
 }
 \arguments{
-\item{base_url}{base URL for ParlGov CSV files}
-
 \item{type}{ParlGov view type: 'election', 'cabinet', or 'party'}
+
+\item{doi}{Dataverse persistent identifier for the ParlGov dataset}
 }
 \value{
 A dataset S3 object
 }
 \description{
-Create a ParlGov dataset object
+Downloads ParlGov data from Harvard Dataverse (stable release) and wraps
+it as a dataset S3 object.
 }

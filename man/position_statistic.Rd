@@ -4,16 +4,23 @@
 \alias{position_statistic}
 \title{Calculate (weighted) positions statistics}
 \usage{
-position_statistic(x, w, measure, na.rm = TRUE)
+position_statistic(x, w, measure, probs, na.rm = TRUE)
 }
 \arguments{
 \item{x}{a vector of positions}
 
 \item{w}{a vector of weights the same length as x}
 
-\item{measure}{the statistics to compute, 'mean', 'median', 'sd'}
+\item{measure}{the statistics to compute: \code{"mean"}, \code{"median"},
+\code{"sd"}, or \code{"quantile"}}
 
-\item{na.rm}{whether to exclude `NA` values from the calculation}
+\item{probs}{numeric probability in \code{[0, 1]} for the quantile to compute.
+Required when \code{measure = "quantile"}.}
+
+\item{na.rm}{whether to exclude \code{NA} values from the calculation}
+}
+\value{
+A single numeric value.
 }
 \description{
 Calculate (weighted) positions statistics

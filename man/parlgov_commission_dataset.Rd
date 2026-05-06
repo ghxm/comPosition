@@ -11,7 +11,8 @@ parlgov_commission_dataset(
 )
 }
 \arguments{
-\item{url}{URL or file path to the commissioner CSV}
+\item{url}{URL or file path to the commissioner CSV. If the URL is
+unreachable, falls back to a bundled snapshot shipped with the package.}
 
 \item{update}{If TRUE (default), applies known corrections and additions
 to the Doering dataset (e.g. VDL I commission personnel changes).}

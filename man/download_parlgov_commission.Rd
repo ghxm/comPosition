@@ -16,5 +16,6 @@ download_parlgov_commission(
 A data.frame
 }
 \description{
-Download the Doering commissioner dataset
+Attempts to download from the given URL. If the download fails, falls back
+to a snapshot bundled with the package.
 }
