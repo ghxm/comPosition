@@ -1,3 +1,22 @@
+#' Nice Treaty QMV vote thresholds by period
+#'
+#' Returns the QMV qualified majority threshold (as a proportion of total
+#' treaty votes) for a given date under the Nice Treaty voting rules.
+#'
+#' @param date date (character or Date)
+#' @return Numeric threshold (proportion), or \code{NA} if the date is before
+#'   the Nice Treaty voting rules (pre-2004-11-01).
+#' @keywords internal
+nice_qmv_threshold <- function(date) {
+    date <- as.Date(date)
+    if (date >= as.Date("2013-07-01")) return(260 / 352)  # EU28
+    if (date >= as.Date("2007-01-01")) return(255 / 345)  # EU27
+    if (date >= as.Date("2004-11-01")) return(232 / 321)  # EU25
+    if (date >= as.Date("1995-01-01")) return(62 / 87)    # EU15
+    NA
+}
+
+
 #' Find the QMV pivotal position in the Council
 #'
 #' Identifies the pivotal position under the EU Council's Qualified Majority
@@ -7,17 +26,33 @@
 #' defines the QMV core (the set of positions that cannot be overturned by a
 #' qualified majority). The midpoint of this interval is the returned estimate.
 #'
-#' Under post-Lisbon rules (from 2014-11-01), QMV requires both 55\% of member
-#' states and 65\% of the EU population.
+#' The function auto-detects the voting regime based on the date:
+#' \itemize{
+#'   \item \strong{Post-Lisbon} (from 2014-11-01): dual threshold requiring
+#'     55\% of member states and 65\% of the EU population.
+#'   \item \strong{Pre-Lisbon / Nice Treaty} (2004-11-01 to 2014-10-31):
+#'     single threshold based on treaty vote weights (e.g., 255/345 for EU27)
+#'     plus a simple majority of member states.
+#' }
+#'
+#' The \code{regime} parameter can be used to force a specific calculation mode
+#' regardless of the date.
 #'
 #' @param positions numeric vector of country policy positions
 #' @param country_id integer vector of ParlGov country IDs (same length as
 #'   \code{positions})
-#' @param date date (character or Date) for looking up population weights
-#' @param threshold_states numeric; fraction of member states required
-#'   (default 0.55 for post-Lisbon QMV)
-#' @param threshold_pop numeric; fraction of population required
-#'   (default 0.65 for post-Lisbon QMV)
+#' @param date date (character or Date) for looking up voting weights and
+#'   auto-detecting the regime
+#' @param regime character; force a specific voting regime. \code{"auto"}
+#'   (default) detects from the date. \code{"lisbon"} forces the post-Lisbon
+#'   dual threshold. \code{"nice"} forces the Nice Treaty single threshold.
+#' @param threshold_states numeric; fraction of member states required.
+#'   Defaults to 0.55 for Lisbon, 0.5 for Nice. Only used when not
+#'   auto-detected or when overriding.
+#' @param threshold_pop numeric; fraction of population required (Lisbon only,
+#'   default 0.65).
+#' @param threshold_votes numeric; fraction of treaty votes required (Nice only).
+#'   If \code{NULL} (default), looked up automatically from the date.
 #' @param return character; what to return. \code{"midpoint"} (default) returns
 #'   the midpoint of the pivot interval. \code{"left"} and \code{"right"} return
 #'   the respective endpoint. \code{"interval"} returns a named numeric vector
@@ -27,61 +62,89 @@
 #'   determined.
 #' @export
 council_pivot <- function(positions, country_id, date,
-                          threshold_states = 0.55, threshold_pop = 0.65,
+                          regime = "auto",
+                          threshold_states = NULL,
+                          threshold_pop = 0.65,
+                          threshold_votes = NULL,
                           return = "midpoint") {
 
     if (length(positions) != length(country_id)) {
         stop("positions and country_id must have the same length")
     }
 
-    # Warn if date is before the post-Lisbon dual-threshold regime
+    # Parse date
     date_parsed <- if (is.character(date)) {
         lubridate::parse_date_time(date, orders = c('ymd', 'dmy'))
     } else {
         date
     }
-    if (date_parsed < as.Date("2014-11-01")) {
-        warning("council_pivot uses post-Lisbon dual-threshold QMV rules ",
-                "(55% states + 65% population). Results for dates before ",
-                "2014-11-01 are not meaningful because the proportional ",
-                "weights for earlier periods are treaty vote counts, not ",
-                "population shares.")
+
+    # Auto-detect regime
+    if (regime == "auto") {
+        regime <- if (date_parsed >= as.Date("2014-11-01")) "lisbon" else "nice"
     }
 
     # Remove NAs pairwise
     valid <- !is.na(positions)
     if (sum(valid) == 0) return(NA)
-
     positions <- positions[valid]
     country_id <- country_id[valid]
 
-    # Population weights from comPosition's existing data
-    pop_weights <- council_voting_weights(country_id, date, type = "proportional")
+    # Get weights
+    weights <- council_voting_weights(country_id, date, type = "proportional")
+    if (all(is.na(weights))) return(NA)
 
-    if (all(is.na(pop_weights))) return(NA)
-
-    # Remove countries with NA population weights
-    valid_pop <- !is.na(pop_weights)
-    if (sum(valid_pop) == 0) return(NA)
-    positions <- positions[valid_pop]
-    country_id <- country_id[valid_pop]
-    pop_weights <- pop_weights[valid_pop]
+    # Remove countries with NA weights
+    valid_w <- !is.na(weights)
+    if (sum(valid_w) == 0) return(NA)
+    positions <- positions[valid_w]
+    country_id <- country_id[valid_w]
+    weights <- weights[valid_w]
 
     n <- length(positions)
-    state_weights <- rep(1 / n, n)  # uniform for states criterion
-    pop_weights <- pop_weights / sum(pop_weights)  # normalize
+    state_weights <- rep(1 / n, n)
+
+    if (regime == "lisbon") {
+        # Post-Lisbon: dual threshold (states + population)
+        if (is.null(threshold_states)) threshold_states <- 0.55
+        pop_weights <- weights / sum(weights)
+
+        pivot_func <- function(ord) {
+            cs <- cumsum(state_weights[ord])
+            cp <- cumsum(pop_weights[ord])
+            which(cs >= threshold_states & cp >= threshold_pop)[1]
+        }
+
+    } else if (regime == "nice") {
+        # Pre-Lisbon: Nice Treaty vote weights + simple majority of states
+        if (is.null(threshold_states)) threshold_states <- 0.5
+        if (is.null(threshold_votes)) {
+            threshold_votes <- nice_qmv_threshold(date)
+            if (is.na(threshold_votes)) {
+                warning("No Nice Treaty QMV threshold available for date ", date,
+                        ". Returning NA.")
+                return(NA)
+            }
+        }
+        vote_weights <- weights / sum(weights)
+
+        pivot_func <- function(ord) {
+            cs <- cumsum(state_weights[ord])
+            cv <- cumsum(vote_weights[ord])
+            which(cs >= threshold_states & cv >= threshold_votes)[1]
+        }
+
+    } else {
+        stop('Unknown regime: "', regime, '". Use "auto", "lisbon", or "nice".')
+    }
 
     # Left pivot: sweep low-to-high
     ord_l <- order(positions)
-    cum_states_l <- cumsum(state_weights[ord_l])
-    cum_pop_l <- cumsum(pop_weights[ord_l])
-    pivot_l_idx <- which(cum_states_l >= threshold_states & cum_pop_l >= threshold_pop)[1]
+    pivot_l_idx <- pivot_func(ord_l)
 
     # Right pivot: sweep high-to-low
     ord_r <- order(positions, decreasing = TRUE)
-    cum_states_r <- cumsum(state_weights[ord_r])
-    cum_pop_r <- cumsum(pop_weights[ord_r])
-    pivot_r_idx <- which(cum_states_r >= threshold_states & cum_pop_r >= threshold_pop)[1]
+    pivot_r_idx <- pivot_func(ord_r)
 
     if (is.na(pivot_l_idx) || is.na(pivot_r_idx)) return(NA)
 
@@ -93,6 +156,7 @@ council_pivot <- function(positions, country_id, date,
            left     = left_pivot,
            right    = right_pivot,
            interval = c(left = left_pivot, right = right_pivot),
-           stop('Unknown return type: "', return, '". Use "midpoint", "left", "right", or "interval".')
+           stop('Unknown return type: "', return,
+                '". Use "midpoint", "left", "right", or "interval".')
     )
 }

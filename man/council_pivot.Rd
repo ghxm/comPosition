@@ -8,8 +8,10 @@ council_pivot(
   positions,
   country_id,
   date,
-  threshold_states = 0.55,
+  regime = "auto",
+  threshold_states = NULL,
   threshold_pop = 0.65,
+  threshold_votes = NULL,
   return = "midpoint"
 )
 }
@@ -19,13 +21,22 @@ council_pivot(
 \item{country_id}{integer vector of ParlGov country IDs (same length as
 \code{positions})}
 
-\item{date}{date (character or Date) for looking up population weights}
+\item{date}{date (character or Date) for looking up voting weights and
+auto-detecting the regime}
 
-\item{threshold_states}{numeric; fraction of member states required
-(default 0.55 for post-Lisbon QMV)}
+\item{regime}{character; force a specific voting regime. \code{"auto"}
+(default) detects from the date. \code{"lisbon"} forces the post-Lisbon
+dual threshold. \code{"nice"} forces the Nice Treaty single threshold.}
 
-\item{threshold_pop}{numeric; fraction of population required
-(default 0.65 for post-Lisbon QMV)}
+\item{threshold_states}{numeric; fraction of member states required.
+Defaults to 0.55 for Lisbon, 0.5 for Nice. Only used when not
+auto-detected or when overriding.}
+
+\item{threshold_pop}{numeric; fraction of population required (Lisbon only,
+default 0.65).}
+
+\item{threshold_votes}{numeric; fraction of treaty votes required (Nice only).
+If \code{NULL} (default), looked up automatically from the date.}
 
 \item{return}{character; what to return. \code{"midpoint"} (default) returns
 the midpoint of the pivot interval. \code{"left"} and \code{"right"} return
@@ -46,6 +57,15 @@ defines the QMV core (the set of positions that cannot be overturned by a
 qualified majority). The midpoint of this interval is the returned estimate.
 }
 \details{
-Under post-Lisbon rules (from 2014-11-01), QMV requires both 55\% of member
-states and 65\% of the EU population.
+The function auto-detects the voting regime based on the date:
+\itemize{
+  \item \strong{Post-Lisbon} (from 2014-11-01): dual threshold requiring
+    55\% of member states and 65\% of the EU population.
+  \item \strong{Pre-Lisbon / Nice Treaty} (2004-11-01 to 2014-10-31):
+    single threshold based on treaty vote weights (e.g., 255/345 for EU27)
+    plus a simple majority of member states.
+}
+
+The \code{regime} parameter can be used to force a specific calculation mode
+regardless of the date.
 }

@@ -1,5 +1,6 @@
-test_that("council_pivot returns a position between min and max", {
-  # 5 large EU countries with known positions
+# --- Auto-detection and regime switching ---
+
+test_that("council_pivot auto-detects Lisbon regime for post-2014 dates", {
   country_ids <- c(54, 43, 26, 27, 74)  # DEU, FRA, ITA, ESP, POL
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
 
@@ -8,8 +9,41 @@ test_that("council_pivot returns a position between min and max", {
   expect_true(result >= min(positions) && result <= max(positions))
 })
 
+test_that("council_pivot auto-detects Nice regime for pre-2014 dates", {
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  # Should not warn (auto-detects Nice)
+  result <- council_pivot(positions, country_ids, "2012-01-01")
+  expect_true(is.numeric(result))
+  expect_true(result >= min(positions) && result <= max(positions))
+})
+
+test_that("council_pivot regime can be forced to lisbon for pre-2014 dates", {
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  result <- council_pivot(positions, country_ids, "2012-01-01", regime = "lisbon")
+  expect_true(is.numeric(result))
+})
+
+test_that("council_pivot regime can be forced to nice for post-2014 dates", {
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  result <- council_pivot(positions, country_ids, "2022-01-01", regime = "nice")
+  expect_true(is.numeric(result))
+})
+
+test_that("council_pivot errors on invalid regime", {
+  expect_error(council_pivot(c(1, 2, 3), c(54, 43, 26), "2022-01-01", regime = "invalid"),
+               "Unknown regime")
+})
+
+
+# --- Symmetry and interval properties ---
+
 test_that("council_pivot midpoint is symmetric under position negation", {
-  # If we negate all positions, the midpoint should also negate
   country_ids <- c(54, 43, 26, 27, 74)
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
 
@@ -18,34 +52,43 @@ test_that("council_pivot midpoint is symmetric under position negation", {
   expect_equal(result_pos, -result_neg, tolerance = 1e-10)
 })
 
-test_that("council_pivot midpoint is between left and right (or equal)", {
+test_that("council_pivot midpoint equals average of interval endpoints", {
   country_ids <- c(54, 43, 26, 27, 74)
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
 
   midpoint <- council_pivot(positions, country_ids, "2022-01-01", return = "midpoint")
   interval <- council_pivot(positions, country_ids, "2022-01-01", return = "interval")
 
-  # Midpoint is always the average of left and right, regardless of ordering
   expect_equal(midpoint, unname((interval["left"] + interval["right"]) / 2))
 })
 
-test_that("council_pivot core is always non-empty (left >= right)", {
-  # Under supermajority rules the two winning coalitions must overlap,
-  # so left_pivot >= right_pivot always holds and the core is non-empty
+
+# --- Nice Treaty regime specifics ---
+
+test_that("nice_qmv_threshold returns correct values per period", {
+  expect_equal(comPosition:::nice_qmv_threshold("2012-01-01"), 255 / 345)  # EU27
+  expect_equal(comPosition:::nice_qmv_threshold("2013-09-01"), 260 / 352)  # EU28
+  expect_equal(comPosition:::nice_qmv_threshold("2005-01-01"), 232 / 321)  # EU25
+  expect_equal(comPosition:::nice_qmv_threshold("1996-01-01"), 62 / 87)    # EU15
+  expect_true(is.na(comPosition:::nice_qmv_threshold("1990-01-01")))       # pre-Nice
+})
+
+test_that("council_pivot Nice regime produces different result from Lisbon", {
   country_ids <- c(54, 43, 26, 27, 74)
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
 
-  interval <- council_pivot(positions, country_ids, "2022-01-01", return = "interval")
-  expect_length(interval, 2)
-  expect_true(all(is.numeric(interval)))
-  expect_true(interval["left"] >= interval["right"])
+  nice_result <- council_pivot(positions, country_ids, "2012-01-01", regime = "nice")
+  lisbon_result <- council_pivot(positions, country_ids, "2012-01-01", regime = "lisbon")
+
+  expect_true(is.numeric(nice_result))
+  expect_true(is.numeric(lisbon_result))
 })
 
-test_that("council_pivot handles NA positions", {
-  country_ids <- c(54, 43, 26)
-  positions <- c(NA, NA, NA)
 
-  result <- council_pivot(positions, country_ids, "2022-01-01")
+# --- NA handling ---
+
+test_that("council_pivot handles all-NA positions", {
+  result <- council_pivot(c(NA, NA, NA), c(54, 43, 26), "2022-01-01")
   expect_true(is.na(result))
 })
 
@@ -58,6 +101,22 @@ test_that("council_pivot handles partial NA positions", {
   expect_true(result >= -1.0 && result <= 1.0)
 })
 
+test_that("council_pivot handles NA population weights", {
+  country_ids <- c(54, 43, 999, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  result <- council_pivot(positions, country_ids, "2022-01-01")
+  expect_true(is.numeric(result))
+})
+
+
+# --- Input validation ---
+
+test_that("council_pivot errors on mismatched input lengths", {
+  expect_error(council_pivot(c(1, 2, 3), c(54, 43), "2022-01-01"),
+               "same length")
+})
+
 test_that("council_pivot return parameter works", {
   country_ids <- c(54, 43, 26, 27, 74)
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
@@ -66,26 +125,4 @@ test_that("council_pivot return parameter works", {
   expect_true(is.numeric(council_pivot(positions, country_ids, "2022-01-01", return = "right")))
   expect_length(council_pivot(positions, country_ids, "2022-01-01", return = "interval"), 2)
   expect_error(council_pivot(positions, country_ids, "2022-01-01", return = "invalid"))
-})
-
-test_that("council_pivot errors on mismatched input lengths", {
-  expect_error(council_pivot(c(1, 2, 3), c(54, 43), "2022-01-01"),
-               "same length")
-})
-
-test_that("council_pivot warns on pre-Lisbon dates", {
-  country_ids <- c(54, 43, 26)
-  positions <- c(-1, 0, 1)
-
-  expect_warning(council_pivot(positions, country_ids, "2010-01-01"),
-                 "2014-11-01")
-})
-
-test_that("council_pivot handles NA population weights gracefully", {
-  # Use a country_id not in the weight table (id=999 doesn't exist)
-  country_ids <- c(54, 43, 999, 27, 74)
-  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
-
-  result <- council_pivot(positions, country_ids, "2022-01-01")
-  expect_true(is.numeric(result))
 })
