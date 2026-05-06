@@ -29,8 +29,8 @@ auto-detecting the regime}
 dual threshold. \code{"nice"} forces the Nice Treaty single threshold.}
 
 \item{threshold_states}{numeric; fraction of member states required.
-Defaults to 0.55 for Lisbon, 0.5 for Nice. Only used when not
-auto-detected or when overriding.}
+Defaults to 0.55 for Lisbon, (floor(n/2)+1)/n for Nice (strict majority).
+Only used when not auto-detected or when overriding.}
 
 \item{threshold_pop}{numeric; fraction of population required (Lisbon only,
 default 0.65).}
