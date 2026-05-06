@@ -9,7 +9,8 @@ council_pivot(
   country_id,
   date,
   threshold_states = 0.55,
-  threshold_pop = 0.65
+  threshold_pop = 0.65,
+  return = "midpoint"
 )
 }
 \arguments{
@@ -25,20 +26,26 @@ council_pivot(
 
 \item{threshold_pop}{numeric; fraction of population required
 (default 0.65 for post-Lisbon QMV)}
+
+\item{return}{character; what to return. \code{"midpoint"} (default) returns
+the midpoint of the pivot interval. \code{"left"} and \code{"right"} return
+the respective endpoint. \code{"interval"} returns a named numeric vector
+with both endpoints.}
 }
 \value{
-A single numeric value: the policy position of the pivotal voter.
-  Returns \code{NA} if the pivot cannot be determined (e.g., all positions
-  are \code{NA}).
+A single numeric value (or a length-2 named vector if
+  \code{return = "interval"}). Returns \code{NA} if the pivot cannot be
+  determined.
 }
 \description{
-Identifies the pivotal voter position under the EU Council's Qualified
-Majority Voting rules. Countries are ordered by their policy position and
-the function finds the position at which both the member-state threshold
-and the population threshold are simultaneously met.
+Identifies the pivotal position under the EU Council's Qualified Majority
+Voting rules by computing both the left and right pivots and returning their
+midpoint. The left pivot is found by sweeping positions from low to high; the
+right pivot by sweeping from high to low. The interval between the two pivots
+defines the QMV core (the set of positions that cannot be overturned by a
+qualified majority). The midpoint of this interval is the returned estimate.
 }
 \details{
 Under post-Lisbon rules (from 2014-11-01), QMV requires both 55\% of member
-states and 65\% of the EU population. The pivotal voter is the country whose
-inclusion in the coalition (ordered by position) first satisfies both criteria.
+states and 65\% of the EU population.
 }

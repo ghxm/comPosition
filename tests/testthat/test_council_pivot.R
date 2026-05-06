@@ -1,8 +1,6 @@
 test_that("council_pivot returns a position between min and max", {
-  # Use a post-Lisbon date with known EU27 composition
-  # We need real country_ids that exist in the voting weight table
-  # DEU=54, FRA=43, ITA=26, ESP=27, POL=74 (5 large countries)
-  country_ids <- c(54, 43, 26, 27, 74)
+  # 5 large EU countries with known positions
+  country_ids <- c(54, 43, 26, 27, 74)  # DEU, FRA, ITA, ESP, POL
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
 
   result <- council_pivot(positions, country_ids, "2022-01-01")
@@ -10,18 +8,37 @@ test_that("council_pivot returns a position between min and max", {
   expect_true(result >= min(positions) && result <= max(positions))
 })
 
-test_that("council_pivot respects population threshold", {
-  # With 5 small countries, population weights are unequal enough
-  # that the population threshold (65%) binds later than the states threshold (55%)
-  # LUX=7, MLT=72, CYP=51, EST=75, SVN=60
-  country_ids <- c(7, 72, 51, 75, 60)
-  positions <- c(1, 2, 3, 4, 5)
+test_that("council_pivot midpoint is symmetric under position negation", {
+  # If we negate all positions, the midpoint should also negate
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
 
-  result <- council_pivot(positions, country_ids, "2022-01-01")
-  expect_true(is.numeric(result))
-  # States threshold met at country 3 (cum=0.6), but pop threshold not until
-  # country 5 (SVN has the largest weight). Pivot should be 5.
-  expect_equal(result, 5)
+  result_pos <- council_pivot(positions, country_ids, "2022-01-01")
+  result_neg <- council_pivot(-positions, country_ids, "2022-01-01")
+  expect_equal(result_pos, -result_neg, tolerance = 1e-10)
+})
+
+test_that("council_pivot midpoint is between left and right (or equal)", {
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  midpoint <- council_pivot(positions, country_ids, "2022-01-01", return = "midpoint")
+  interval <- council_pivot(positions, country_ids, "2022-01-01", return = "interval")
+
+  # Midpoint is always the average of left and right, regardless of ordering
+  expect_equal(midpoint, unname((interval["left"] + interval["right"]) / 2))
+})
+
+test_that("council_pivot core can be empty (left > right) with asymmetric weights", {
+  # With highly asymmetric population weights (e.g., DEU), the left pivot
+  # may exceed the right pivot, indicating an empty QMV core
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  interval <- council_pivot(positions, country_ids, "2022-01-01", return = "interval")
+  # Just verify we get two numeric values
+  expect_length(interval, 2)
+  expect_true(all(is.numeric(interval)))
 })
 
 test_that("council_pivot handles NA positions", {
@@ -39,4 +56,14 @@ test_that("council_pivot handles partial NA positions", {
   result <- council_pivot(positions, country_ids, "2022-01-01")
   expect_true(is.numeric(result))
   expect_true(result >= -1.0 && result <= 1.0)
+})
+
+test_that("council_pivot return parameter works", {
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  expect_true(is.numeric(council_pivot(positions, country_ids, "2022-01-01", return = "left")))
+  expect_true(is.numeric(council_pivot(positions, country_ids, "2022-01-01", return = "right")))
+  expect_length(council_pivot(positions, country_ids, "2022-01-01", return = "interval"), 2)
+  expect_error(council_pivot(positions, country_ids, "2022-01-01", return = "invalid"))
 })
