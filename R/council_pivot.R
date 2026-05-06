@@ -52,8 +52,8 @@ nice_qmv_threshold <- function(date) {
 #'   (default) detects from the date. \code{"lisbon"} forces the post-Lisbon
 #'   dual threshold. \code{"nice"} forces the Nice Treaty single threshold.
 #' @param threshold_states numeric; fraction of member states required.
-#'   Defaults to 0.55 for Lisbon, 0.5 for Nice. Only used when not
-#'   auto-detected or when overriding.
+#'   Defaults to 0.55 for Lisbon, (floor(n/2)+1)/n for Nice (strict majority).
+#'   Only used when not auto-detected or when overriding.
 #' @param threshold_pop numeric; fraction of population required (Lisbon only,
 #'   default 0.65).
 #' @param threshold_votes numeric; fraction of treaty votes required (Nice only).
@@ -125,8 +125,8 @@ council_pivot <- function(positions, country_id, date,
         }
 
     } else if (regime == "nice") {
-        # Pre-Lisbon: Nice Treaty vote weights + simple majority of states
-        if (is.null(threshold_states)) threshold_states <- 0.5
+        # Pre-Lisbon: Nice Treaty vote weights + majority of states (> 50%)
+        if (is.null(threshold_states)) threshold_states <- (floor(n / 2) + 1) / n
         if (is.null(threshold_votes)) {
             threshold_votes <- nice_qmv_threshold(date)
             if (is.na(threshold_votes)) {

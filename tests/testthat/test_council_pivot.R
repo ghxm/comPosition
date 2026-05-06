@@ -90,6 +90,27 @@ test_that("nice_qmv_threshold returns correct values per period", {
   expect_true(is.na(comPosition:::nice_qmv_threshold("1990-01-01")))       # pre-Nice
 })
 
+test_that("council_pivot Nice states threshold is strict majority (> 50%)", {
+  # With even n, 50% is NOT a majority. E.g., 2 out of 4 is a tie, not a majority.
+  # Use 4 countries where the 2nd country would meet >= 0.5 but not > 0.5
+  # ITA=29, ESP=27, NLD=13, BEL=12 (total=81, threshold for EU28 period = 260/352)
+  # Force threshold_votes low so only the states criterion matters
+  country_ids <- c(26, 27, 8, 64)
+  positions <- c(1, 2, 3, 4)
+
+  # With strict majority: need 3 out of 4 states (floor(4/2)+1 = 3)
+  # With lax >= 0.5: would only need 2 out of 4
+  # The vote threshold (260/352) is very high, so for just 4 countries
+  # we override it to something low to isolate the states effect
+  result <- council_pivot(positions, country_ids, "2013-09-01",
+                          threshold_votes = 0.01)
+  interval <- council_pivot(positions, country_ids, "2013-09-01",
+                            threshold_votes = 0.01, return = "interval")
+
+  # With strict majority (3/4), left pivot must be at least position 3
+  expect_true(interval["left"] >= 3)
+})
+
 test_that("council_pivot Nice regime produces different result from Lisbon", {
   country_ids <- c(54, 43, 26, 27, 74)
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
