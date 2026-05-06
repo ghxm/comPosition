@@ -30,6 +30,24 @@ council_pivot <- function(positions, country_id, date,
                           threshold_states = 0.55, threshold_pop = 0.65,
                           return = "midpoint") {
 
+    if (length(positions) != length(country_id)) {
+        stop("positions and country_id must have the same length")
+    }
+
+    # Warn if date is before the post-Lisbon dual-threshold regime
+    date_parsed <- if (is.character(date)) {
+        lubridate::parse_date_time(date, orders = c('ymd', 'dmy'))
+    } else {
+        date
+    }
+    if (date_parsed < as.Date("2014-11-01")) {
+        warning("council_pivot uses post-Lisbon dual-threshold QMV rules ",
+                "(55% states + 65% population). Results for dates before ",
+                "2014-11-01 are not meaningful because the proportional ",
+                "weights for earlier periods are treaty vote counts, not ",
+                "population shares.")
+    }
+
     # Remove NAs pairwise
     valid <- !is.na(positions)
     if (sum(valid) == 0) return(NA)
@@ -42,9 +60,16 @@ council_pivot <- function(positions, country_id, date,
 
     if (all(is.na(pop_weights))) return(NA)
 
+    # Remove countries with NA population weights
+    valid_pop <- !is.na(pop_weights)
+    if (sum(valid_pop) == 0) return(NA)
+    positions <- positions[valid_pop]
+    country_id <- country_id[valid_pop]
+    pop_weights <- pop_weights[valid_pop]
+
     n <- length(positions)
     state_weights <- rep(1 / n, n)  # uniform for states criterion
-    pop_weights <- pop_weights / sum(pop_weights, na.rm = TRUE)  # normalize
+    pop_weights <- pop_weights / sum(pop_weights)  # normalize
 
     # Left pivot: sweep low-to-high
     ord_l <- order(positions)
