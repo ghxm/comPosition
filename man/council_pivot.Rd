@@ -62,10 +62,15 @@ The function auto-detects the voting regime based on the date:
   \item \strong{Post-Lisbon} (from 2014-11-01): dual threshold requiring
     55\% of member states and 65\% of the EU population.
   \item \strong{Pre-Lisbon / Nice Treaty} (2004-11-01 to 2014-10-31):
-    single threshold based on treaty vote weights (e.g., 255/345 for EU27)
-    plus a simple majority of member states.
+    threshold based on treaty vote weights (e.g., 255/345 for EU27) plus a
+    simple majority of member states. Note: the Nice Treaty formally also
+    required 62\% of total EU population (verifiable on request by any member
+    state), but this criterion was rarely binding in practice and is not
+    implemented here.
 }
 
 The \code{regime} parameter can be used to force a specific calculation mode
-regardless of the date.
+regardless of the date. Note that forcing \code{"lisbon"} on pre-2014 dates
+is not meaningful because the proportional weights for earlier periods are
+treaty vote counts, not population shares.
 }

@@ -19,12 +19,14 @@ test_that("council_pivot auto-detects Nice regime for pre-2014 dates", {
   expect_true(result >= min(positions) && result <= max(positions))
 })
 
-test_that("council_pivot regime can be forced to lisbon for pre-2014 dates", {
+test_that("council_pivot warns when forcing Lisbon regime on pre-2014 dates", {
   country_ids <- c(54, 43, 26, 27, 74)
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
 
-  result <- council_pivot(positions, country_ids, "2012-01-01", regime = "lisbon")
-  expect_true(is.numeric(result))
+  expect_warning(
+    council_pivot(positions, country_ids, "2012-01-01", regime = "lisbon"),
+    "not meaningful"
+  )
 })
 
 test_that("council_pivot regime can be forced to nice for post-2014 dates", {
@@ -62,6 +64,21 @@ test_that("council_pivot midpoint equals average of interval endpoints", {
   expect_equal(midpoint, unname((interval["left"] + interval["right"]) / 2))
 })
 
+test_that("council_pivot core is non-empty (left >= right) under both regimes", {
+  # Under any supermajority rule the two winning coalitions must overlap,
+  # so left_pivot >= right_pivot (non-empty core)
+  country_ids <- c(54, 43, 26, 27, 74)
+  positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
+
+  # Lisbon
+  interval_l <- council_pivot(positions, country_ids, "2022-01-01", return = "interval")
+  expect_true(interval_l["left"] >= interval_l["right"])
+
+  # Nice
+  interval_n <- council_pivot(positions, country_ids, "2012-01-01", return = "interval")
+  expect_true(interval_n["left"] >= interval_n["right"])
+})
+
 
 # --- Nice Treaty regime specifics ---
 
@@ -78,7 +95,9 @@ test_that("council_pivot Nice regime produces different result from Lisbon", {
   positions <- c(-1.0, -0.5, 0.0, 0.5, 1.0)
 
   nice_result <- council_pivot(positions, country_ids, "2012-01-01", regime = "nice")
-  lisbon_result <- council_pivot(positions, country_ids, "2012-01-01", regime = "lisbon")
+  lisbon_result <- suppressWarnings(
+    council_pivot(positions, country_ids, "2012-01-01", regime = "lisbon")
+  )
 
   expect_true(is.numeric(nice_result))
   expect_true(is.numeric(lisbon_result))
