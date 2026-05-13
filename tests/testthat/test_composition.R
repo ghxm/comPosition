@@ -256,3 +256,80 @@ test_that("manifesto_country_positions works with weighted=FALSE", {
                                 weighted = FALSE, method = 'lowe')
   )
 })
+
+
+# --- ep() date filter and duplicate filter ---
+
+# Helper: minimal mock data that passes through ep()
+mock_ep_data <- function(country_ids, election_dates, country_names) {
+  n <- length(country_ids)
+  dataset(
+    data.frame(
+      country_id = country_ids,
+      party_id = seq_len(n),
+      election_type = rep("ep", n),
+      election_date = election_dates,
+      party_name_english = paste0("Party_", seq_len(n)),
+      country_name = country_names,
+      seats = rep(10, n),
+      stringsAsFactors = FALSE
+    ),
+    type = "parlgov_election"
+  )
+}
+
+mock_linktable <- data.frame(
+  parlgov = integer(0), manifesto = integer(0), stringsAsFactors = FALSE
+)
+
+test_that("ep() excludes elections that are in the future relative to query date", {
+  # Germany has a 2014 and a 2019 EP election. Querying 2017: only 2014 should
+  # survive the 5-year window. If the date filter is broken, aggregate(max)
+  # picks 2019 (a future election), producing a wrong composition.
+  ds <- mock_ep_data(
+    country_ids     = c(54, 54, 43),
+    election_dates  = c("2014-05-25", "2019-05-26", "2014-05-25"),
+    country_names   = c("Germany", "Germany", "France")
+  )
+
+  result <- suppressWarnings(ep("2017-01-01", data = ds, linktable = mock_linktable))
+
+  expect_false("2019-05-26" %in% result$election_date)
+  expect_true(all(result$election_date == "2014-05-25"))
+})
+
+test_that("ep() excludes elections older than 5 years before query date", {
+  # Germany only has a 2009 election (~8 years before query). France has 2014.
+  # Germany should not appear in the composition at all.
+  ds <- mock_ep_data(
+    country_ids     = c(54, 43),
+    election_dates  = c("2009-06-07", "2014-05-25"),
+    country_names   = c("Germany", "France")
+  )
+
+  result <- suppressWarnings(ep("2017-01-01", data = ds, linktable = mock_linktable))
+
+  expect_false(54 %in% result$country_id)
+  expect_true(43 %in% result$country_id)
+})
+
+test_that("ep() duplicate filter enforces country-date pairing", {
+  # Germany has EP elections on 2013-04-14 AND 2014-05-25.
+  # Croatia has an EP election on 2013-04-14 only.
+  # After aggregate(max): Germany -> 2014-05-25, Croatia -> 2013-04-14.
+  # With independent %in% checks, Germany's 2013-04-14 row passes because
+  # that date appears as Croatia's max. With a paired merge it is excluded.
+  ds <- mock_ep_data(
+    country_ids     = c(54, 54, 62),
+    election_dates  = c("2013-04-14", "2014-05-25", "2013-04-14"),
+    country_names   = c("Germany", "Germany", "Croatia")
+  )
+
+  result <- suppressWarnings(ep("2014-06-01", data = ds, linktable = mock_linktable))
+
+  de_dates <- unique(result$election_date[result$country_id == 54])
+  expect_equal(de_dates, "2014-05-25")
+
+  hr_dates <- unique(result$election_date[result$country_id == 62])
+  expect_equal(hr_dates, "2013-04-14")
+})
