@@ -95,9 +95,11 @@ ep <- function(date, data, linktable, comittee_name, type='plenary'){
 
         # sort out possbile duplicates per country (e.g. croatia accession)
         country_election_max <- aggregate(parlgov_election_ep[,'election_date'], list(parlgov_election_ep[,'country_id']), max)
+        colnames(country_election_max) <- c('country_id', 'election_date')
 
-        parlgov_election_ep <- parlgov_election_ep[which(parlgov_election_ep$country_id %in% country_election_max[,1] &
-                                                             parlgov_election_ep$election_date %in% country_election_max[,2]),]
+        parlgov_election_ep <- keep_attributes(merge(parlgov_election_ep, country_election_max,
+                                                      by = c('country_id', 'election_date')),
+                                                parlgov_election_ep)
 
         # return composititon object
         return(composition(parlgov_election_ep, from = 'parlgov', 'EP plenary', type='parlgov_election', date=date, linktable=linktable))
