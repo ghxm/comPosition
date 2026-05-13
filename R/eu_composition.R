@@ -61,7 +61,7 @@ determine_ep_election_date <- function(date, election_dates){
 
 #' Create an EP composition
 #' @export
-ep <- function(date, data, linktable, comittee_name, type='plenary'){
+ep <- function(date, data, linktable, committee_name, type='plenary'){
 
     if (is.character(date)){
         date <- lubridate::parse_date_time(date, orders=c('ymd', 'dmy'))
@@ -105,10 +105,7 @@ ep <- function(date, data, linktable, comittee_name, type='plenary'){
         return(composition(parlgov_election_ep, from = 'parlgov', 'EP plenary', type='parlgov_election', date=date, linktable=linktable))
 
     } else if (type == 'committee') {
-        if (missing(committee_name)) {
-            # calc for all comittees that can be found for date
-
-        }
+        stop('type = "committee" is not yet implemented.')
 
     }
 
