@@ -1,5 +1,8 @@
 
 
+#' Retrieve positional values from a dataset
+#' @param x a dataset or composition object
+#' @param ... additional arguments passed to methods
 #' @export
 values <- function(x, ...) UseMethod('values')
 

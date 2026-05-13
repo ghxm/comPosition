@@ -56,6 +56,9 @@ manifesto_country_positions <- function(x, L_vars, R_vars, N_vars = c('total'), 
 
 }
 
+#' Generate positions on issue dimensions from manifesto data
+#' @param x a composition object
+#' @param ... additional arguments passed to methods
 #' @export
 manifesto_issue_dimension_position <- function(x, ...) UseMethod('manifesto_issue_dimension_position')
 

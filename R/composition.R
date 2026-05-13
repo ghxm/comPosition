@@ -81,6 +81,9 @@ add_unit.composition <- function(x, composition_id = NA, party_id = NA, other){
 
 # add_id_col method ------
 
+#' Add ID columns from other datasets to a composition
+#' @param x a dataset or composition object
+#' @param ... additional arguments passed to methods
 #' @export
 add_id_col <- function(x, ...) UseMethod("add_id_col")
 
