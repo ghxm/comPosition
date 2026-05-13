@@ -87,9 +87,11 @@ ep <- function(date, data, linktable, comittee_name, type='plenary'){
 
 
         # subset by date
+        parsed_election_date <- lubridate::parse_date_time(parlgov_election_ep$election_date, orders=c('ymd', 'dmy'))
+        days_diff <- as.numeric(difftime(parsed_election_date, date, units = "days"))
         parlgov_election_ep <- keep_attributes(parlgov_election_ep[which(parlgov_election_ep$election_type=='ep' &
-                                                          (lubridate::parse_date_time(parlgov_election_ep$election_date, orders=c('ymd', 'dmy')) - date)/60/60/24 <= 3 &
-                                                          (lubridate::parse_date_time(parlgov_election_ep$election_date, orders=c('ymd', 'dmy')) - date)/60/60/24 >= -365*5+3),], parlgov_election_ep)
+                                                          days_diff <= 3 &
+                                                          days_diff >= -365*5+3),], parlgov_election_ep)
 
         # sort out possbile duplicates per country (e.g. croatia accession)
         country_election_max <- aggregate(parlgov_election_ep[,'election_date'], list(parlgov_election_ep[,'country_id']), max)
