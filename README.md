@@ -1,8 +1,5 @@
 # comPosition #
 
-[![Build Status](https://travis-ci.org/ghxm/comPosition.svg?branch=master)](https://travis-ci.org/ghxm/comPosition)
-[![codecov.io](https://codecov.io/github/ghxm/comPosition/coverage.svg?branch=master)](https://codecov.io/github/ghxm/comPosition?branch=master)
-
 
 *WARNING: Development version - use at your own risk. <a href="mailto:maximilian.haag@gsi.uni-muenchen.de?subject=comPosition R package">Contact the author</a> for further information on the package status. For bug reports, questions and features, please refer to the [GitHub Issues](https://github.com/ghxm/comPosition/issues).*
 

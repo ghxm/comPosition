@@ -5,20 +5,17 @@ Maintainer: Maximilian Haag <maximilian.haag@gsi.uni-muenchen.de>
 Description: R packgae that allows for the creation of EU insitutional composition and position datasets across time using various data sources.
 Author: Maximilian Haag
 Depends:
-    R (>= 3.3.1),
-    dplyr
+    R (>= 3.3.1)
 Imports:
     tidyr,
     lubridate,
-    magrittr,
     stringdist,
     Hmisc,
     jsonlite
 Suggests:
     testthat,
     knitr,
-    rmarkdown,
-    dplyr
+    rmarkdown
 VignetteBuilder: knitr
 License: MIT
 Encoding: UTF-8
