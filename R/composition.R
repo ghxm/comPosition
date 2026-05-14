@@ -74,7 +74,7 @@ composition <- function(x, from, name = attr(x, 'name'), type = attr(x, 'name'),
 add_unit.composition <- function(x, composition_id = NA, party_id = NA, other){
 
     # @TODO keep attributes
-    keep_attributes(dplyr::bind_rows(x, c(composition_id, party_id, other)), x)
+    keep_attributes(rbind(x, data.frame(composition_id = composition_id, party_id = party_id, other)), x)
 
 }
 

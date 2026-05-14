@@ -109,9 +109,11 @@ partyfacts_linktable <- function(data_url = 'https://partyfacts.herokuapp.com/do
 
 
     # create IDs for duplicate entries
-    pf_raw <- pf_raw %>%
-                        group_by_at(c(id_cols, 'dataset_key')) %>%
-                        mutate(duplicate_id = row_number())
+    pf_raw$duplicate_id <- ave(
+        seq_len(nrow(pf_raw)),
+        pf_raw[, c(id_cols, "dataset_key")],
+        FUN = seq_along
+    )
 
     pf_wide <- tidyr::pivot_wider(pf_raw, id_cols = c(id_cols, 'duplicate_id'), names_from = 'dataset_key', values_from = 'dataset_party_id')
     pf_wide <- type.convert(pf_wide, as.is=TRUE)
