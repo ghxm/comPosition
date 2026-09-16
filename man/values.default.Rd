@@ -10,7 +10,7 @@
   data,
   value_vars,
   tolerance_lower = 365 * 6,
-  tolerance_upper = 365 * 2,
+  tolerance_upper = 30,
   id_var = attr(data, "party_id_var"),
   date_var = attr(data, "date_var"),
   return_id_var = FALSE,
